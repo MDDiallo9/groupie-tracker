@@ -31,7 +31,7 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	infoLog.Println("Starting server on http://localhost:8000")
+	infoLog.Println("Starting server on http://localhost" + *port)
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 
