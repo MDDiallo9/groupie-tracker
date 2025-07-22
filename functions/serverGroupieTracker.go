@@ -1,20 +1,40 @@
 package functions
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"os"
 )
 
-func ServerGroupieTracker() {
+func ServerGroupieTracker(artists []ArtistsData, locations []LocationsData, dates []ConcertDatesData, relations []RelationsData) {
+	// Chargement du template HTML) {
 
-	// http.Dir transforme un chemin vers un répertoire local en un type compatible avec un serveur HTTP.
-	// http.FileServer permet de transformer un fichier local en un mini serveur web.
-	fileServer := http.FileServer(http.Dir("static"))
+	// si une requête arrive dont le chemin commence par "/", on appellera la fonction (handlerFunc).
+	// Si l’URL n’est pas exactement "/", on renvoie l'erreur 404 ( vérifie le chemin pour éviter de traiter autre chose)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		HomeHandler(w, r, artists, locations, dates, relations)
+		// Chargement du template HTML)
+	})
 
-	// Http.Handle fait le lien entre une URL et la fonction qui répond à cette URL.
-	http.Handle("/static/", http.StripPrefix("/static", fileServer))
+	// définis un "serveur de fichiers" pointant sur le dossier ./static
+	fs := http.FileServer(http.Dir("/template"))
+	http.Handle("/template/", http.StripPrefix("/template/", fs)) // StripPrefix enlève le /static/ de l'URL pour retrouver style.css et style2.css
 
-	// http.ListAndServe permet de lancer un serveur, d'écouter les requêtes entrantes sur une adresse donnée, puis de déléguer la gestion des requêtes à un "Handler"
-	fmt.Println("Serveur démarré sur le port 8081...")
-	http.ListenAndServe(":8081", nil)
+	// Log du répertoire de travail
+	// sert uniquement à indiquer, au lancement, le chemin absolu du dossier depuis lequel le code tourne
+	// Renvoie une erreur si le répertoire courant a été supprimé ou est inaccessible.
+	if wd, err := os.Getwd(); err == nil {
+		log.Println("Répertoire de travail :", wd)
+	} else {
+		log.Fatal("Erreur pour obtenir le répertoire de travail :", err)
+	}
+
+	log.Println("Serveur démarré sur http://localhost:8081")
+	if err := http.ListenAndServe(":8081", nil); err != nil {
+		log.Fatal("Erreur lors du démarrage du serveur :", err)
+	}
 }

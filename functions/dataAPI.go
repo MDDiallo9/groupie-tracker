@@ -14,19 +14,21 @@ import (
 
 // #MARK: Déclaration de la Struct
 type Links struct {
-	Artists   string
-	Locations string
-	Dates     string
-	Relation  string
+	Artists   string `json:"artists"`
+	Locations string `json:"locations"`
+	Dates     string `json:"dates"`
+	Relations string `json:"relation"`
 }
 
 // #MARK: Lecture des URL.
-func DataAPI() {
+func DataAPI() Links {
 	dataAPIdata, err := http.Get("https://groupietrackers.herokuapp.com/api")
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
 	}
+	defer dataAPIdata.Body.Close()
+	// Pour libérer de la ressource de calcul.
 
 	// Convertit le dataAPI en Bytes.
 	dataAPIBytes, err := io.ReadAll(dataAPIdata.Body)
@@ -36,7 +38,6 @@ func DataAPI() {
 
 	if len(dataAPIBytes) == 0 {
 		fmt.Println("API Empty")
-		return
 	}
 
 	// Déclaration de cette variable pour amener la Struct à obtenir les données par ce lien.
@@ -47,11 +48,11 @@ func DataAPI() {
 		log.Fatal(err)
 	}
 
-	/*
-		 	// test pour savoir si ça s'affiche bien.
-			fmt.Println(links.Artists)
-			fmt.Println(links.Locations)
-			fmt.Println(links.Dates)
-			fmt.Println(links.Relation)
-	*/
+	// test pour savoir si ça marche.
+	/* 	fmt.Println(links.Artists)
+	   	fmt.Println(links.Locations)
+	   	fmt.Println(links.Dates)
+	   	fmt.Println(links.Relations) */
+
+	return links
 }
