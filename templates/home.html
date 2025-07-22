@@ -9,7 +9,9 @@
     <main style="display: flex; flex-wrap: wrap;">
         {{ range .}}
             <div>
-                <h1>{{ .Name}}</h1>
+                <a href="/artist?id={{.ID}}">
+                    <h1>{{ .Name}}</h1>
+                </a>
                 <img src={{.Image}} alt="">
             </div>
         {{end}}
