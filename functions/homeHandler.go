@@ -37,4 +37,5 @@ func HomeHandler(w http.ResponseWriter, r *http.Request, artists []ArtistsData, 
 		log.Print(err.Error())
 		http.Error(w, "Erreur lors de l'affichage de la page", http.StatusInternalServerError)
 	}
+
 }

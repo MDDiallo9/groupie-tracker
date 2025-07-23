@@ -12,7 +12,7 @@ func main() {
 	locations := functions.ObtainLocations(links)
 	dates := functions.ObtainDates(links)
 	relations := functions.ObtainRelations(links)
-	firstPageData := functions.ObtainFirstPageData(artists, locations, dates, relations)
+	// firstPageData := functions.ObtainFirstPageData(artists, locations, dates, relations)
 	functions.ServerGroupieTracker(artists, locations, dates, relations)
 
 	// Tests

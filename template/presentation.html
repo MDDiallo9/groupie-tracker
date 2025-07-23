@@ -9,10 +9,10 @@
 
   <div class="cadre-resultat">
     <h1 class="titre4">Données</h1>
-    <pre class="generation">{{.Artists}}</pre>
-    <pre class="generation">{{.Locations}}</pre>
-    <pre class="generation">{{.Dates}}</pre>
-    <pre class="generation">{{.Relations}}</pre>
+    {{ range .Artists}}
+    <pre class="generation">{{.Name}}</pre>
+    <img src="{{.Image}}" alt="">
+    {{end}}
   </div>
 
     <!-- Et voici notre pied de page utilisé sur toutes les pages du site -->
