@@ -1,0 +1,29 @@
+.artists-list {
+  display: flex;
+  flex-wrap: wrap; /* Permet le retour à la ligne si l'espace est insuffisant */
+  justify-content: center; /* Centre les cartes horizontalement */
+  gap: 20px; /* Espace entre les cartes */
+  padding: 30px;
+  border: 4px solid red;
+  border-radius: 20px; /* sa réalise l'arrondi des bords de la bordure rouge tout autour de la page */
+  background-color: #2ec428;
+}
+
+/* Construit la présentation de chaque artiste en format carte */
+.artists-card {
+  flex: 1 1 300px; /* Permet à chaque carte de s'adapter dans un minimum de 300px */
+  max-width: 400px;
+  border: 4px solid red;
+  border-radius: 20px; /* sa réalise l'arrondi des bords de la bordure rouge tout autour de la page */
+  text-align : center;
+}
+
+.artists-Image img {
+  border-radius: 50%; /* rend l’image parfaitement ronde */
+  width: 150px;
+  height: 150px;
+  object-fit: cover; /* Pour bien cadrer l’image dans le cercle */
+  border: 2px solid #000; /* Pour la bordure noire autour */
+  display: block;
+  margin: 0 auto;
+}

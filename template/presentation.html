@@ -2,20 +2,33 @@
 <html>
   <head>
     <meta charset="utf-8" />
-
+    <link rel="stylesheet" href="../statics/page.css">
   </head>
 
   <body>
 
-  <div class="cadre-resultat">
-    <h1 class="titre4">Données</h1>
-    {{ range .Artists}}
-    <pre class="generation">{{.Name}}</pre>
-    <img src="{{.Image}}" alt="">
-    {{end}}
+    <div class="artists-list">
+      {{ range .Artists}} <!-- Ouvre la lecture des données de la structure Artists -->
+        <div class="artists-card">
+          <div class="artists-Image">
+            <img src="{{.Image}}" alt=""> <!-- Affiche l'image du groupe -->
+          </div>
+          <br>
+          <b>Nom du groupe :</b>  {{.Name}}
+          <br><br>
+          <b>Les membres du groupe sont :</b>
+            <!-- <ul>  Sert à construire la liste en points -->
+            {{range .Members}} <!-- Débute la lecture de la liste des membres dans Members de la Structure Artists -->
+                <li>{{.}}</li>
+            {{end}} <!-- Termine la lecture de la liste des membres dans Members de la Structure Artists -->
+            <!-- </ul> -->
+          <b>Date de fondation du groupe : </b> {{.CreationDate}}
+          <br><br>
+          <b>Leur premier album sort en </b> {{.FirstAlbum}}
+          <br>
+      </div>
+    {{end}} <!-- Termine la lecture des données de la structure Artists -->
   </div>
-
-    <!-- Et voici notre pied de page utilisé sur toutes les pages du site -->
     <footer>
       <p>©Copyright by the legendary Nobody</p>
     </footer>

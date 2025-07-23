@@ -20,9 +20,9 @@ func ServerGroupieTracker(artists []ArtistsData, locations []LocationsData, date
 		// Chargement du template HTML)
 	})
 
-	// définis un "serveur de fichiers" pointant sur le dossier ./static
-	fs := http.FileServer(http.Dir("/template"))
-	http.Handle("/template/", http.StripPrefix("/template/", fs)) // StripPrefix enlève le /static/ de l'URL pour retrouver style.css et style2.css
+	// définis un "serveur de fichiers" pointant sur le dossier ./template
+	fs := http.FileServer(http.Dir("./statics"))
+	http.Handle("/statics/", http.StripPrefix("/statics/", fs)) // StripPrefix enlève le /static/ de l'URL pour retrouver le.css
 
 	// Log du répertoire de travail
 	// sert uniquement à indiquer, au lancement, le chemin absolu du dossier depuis lequel le code tourne
