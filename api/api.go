@@ -1,14 +1,28 @@
-package server
+package api
 
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
+	"log"
 	"net/http"
 	"os"
-	"strings"
 )
+
+type Artist struct {
+	ID               int      `json:"id"`
+	Image            string   `json:"image"`
+	Name             string   `json:"name"`
+	Members          []string `json:"members"`
+	CreationDate     int      `json:"creationDate"`
+	FirstAlbum       string   `json:"firstAlbum"`
+	LocationsLink    string   `json:"locations"`
+	Locations        []string
+	ConcertDatesLink string `json:"concertDates"`
+	ConcertDates     []string
+	RelationsLink    string `json:"relations"`
+	Relations        map[string][]string
+}
 
 type LocationData struct {
 	ID               int      `json:"id"`
@@ -26,37 +40,32 @@ type RelationData struct {
 	Relations map[string][]string `json:"datesLocations"`
 }
 
-func (app *application) GetArtist(id string) Artist {
+func GetArtists() []Artist {
 
-	var artist Artist
+	var artists []Artist
 
-	link := "https://groupietrackers.herokuapp.com/api/artists/" + id
+	link := "https://groupietrackers.herokuapp.com/api/artists"
 	response, err := http.Get(link)
 
 	if err != nil {
 		fmt.Print(err.Error())
-		app.errorLog.Printf("%v", err)
+		os.Exit(1)
 	}
 	defer response.Body.Close()
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(responseData, &artist)
+	err = json.Unmarshal(responseData, &artists)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		log.Fatal(err)
 	}
-
-	artist.Locations = app.GetLocations(artist)
-	artist.ConcertDates = app.GetConcertDates(artist)
-	artist.Relations = app.GetRelations(artist)
-
-	return artist
+	return artists
 }
 
-func (app *application) GetLocations(artist Artist) []string {
+func GetLocations(artist Artist) []string {
 
 	var locations LocationData
 
@@ -64,84 +73,62 @@ func (app *application) GetLocations(artist Artist) []string {
 
 	if err != nil {
 		fmt.Print(err.Error())
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	defer response.Body.Close()
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 
 	err = json.Unmarshal(responseData, &locations)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	return locations.Locations
 }
 
-func (app *application) GetConcertDates(artist Artist) []string {
+func GetConcertDates(artist Artist) []string {
 	var concertDates ConcertDatesData
 	response, err := http.Get(artist.ConcertDatesLink)
 
 	if err != nil {
 		fmt.Print(err.Error())
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	defer response.Body.Close()
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 
 	err = json.Unmarshal(responseData, &concertDates)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	return concertDates.Dates
 }
 
-func (app *application) GetRelations(artist Artist) map[string][]string {
+func GetRelations(artist Artist) map[string][]string {
 	var relations RelationData
 	response, err := http.Get(artist.RelationsLink)
 
 	if err != nil {
 		fmt.Print(err.Error())
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	defer response.Body.Close()
 
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 
 	err = json.Unmarshal(responseData, &relations)
 	if err != nil {
-		app.errorLog.Printf("%v", err)
+		fmt.Printf("%v", err)
 	}
 	return relations.Relations
-}
-
-// Simule un chargement JSON
-func loadArtists() []Artist {
-	var artists []Artist
-	data, _ := os.ReadFile("data/artists.json")
-	json.Unmarshal(data, &artists)
-	return artists
-}
-
-func searchHandler(w http.ResponseWriter, r *http.Request) {
-	query := strings.ToLower(r.URL.Query().Get("q"))
-	var results []Artist
-
-	for _, artist := range loadArtists() {
-		if strings.Contains(strings.ToLower(artist.Name), query) {
-			results = append(results, artist)
-		}
-	}
-
-	tmpl := template.Must(template.ParseFiles("templates/search.html"))
-	tmpl.Execute(w, struct{ Results []Artist }{results})
 }
