@@ -7,7 +7,7 @@ import (
 func Routes() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	fileserver := http.FileServer(http.Dir("./ui/static"))
+	fileserver := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
 	mux.HandleFunc("/{$}", home)
