@@ -88,5 +88,3 @@ Un projet web interactif qui permet de visualiser les groupes de musique, leurs 
 
 - Slider : [Exemples sur Dribbble](https://dribbble.com/search/filter-slider)
 - Checkbox : [Documentation MDN](https://developer.mozilla.org/fr/docs/Web/HTML/Reference/Elements/input/checkbox)
-
----
