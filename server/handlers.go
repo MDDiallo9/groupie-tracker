@@ -33,14 +33,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}*/
 	artists := api.GetArtists()
 
-	ts, err := template.ParseFiles("./templates/home.html")
+	ts, err := template.ParseFiles("./templates/home.html","./templates/partials/base.html","./templates/partials/footer.html","./templates/partials/head.html")
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, artists)
+	err = ts.ExecuteTemplate(w,"base.html", artists)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -54,14 +54,14 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	artists := api.GetArtists()
 	artist := artists[id+1]
 
-	ts, err := template.ParseFiles("./templates/artist.html")
+	ts, err := template.ParseFiles("./templates/artist.html","./templates/partials/base.html","./templates/partials/footer.html","./templates/partials/head.html")
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = ts.Execute(w, artist)
+	err = ts.ExecuteTemplate(w,"base.html", artist)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

@@ -1,32 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Name}}</title>
-</head>
-
-<body>
+{{ define "content" }}
+<div>
+    <h1>{{ .Name}}</h1>
+    <img src={{.Image}} alt="">
     <div>
-        <h1>{{ .Name}}</h1>
-        <img src={{.Image}} alt="">
+        <div>{{ .FirstAlbum }}</div> <!-- Template data needs to be time.Time to format -->
         <div>
-            <div>{{ .FirstAlbum }}</div> <!-- Template data needs to be time.Time to format -->
-            <div>
-                {{ range .Members}}
-                <p>{{.}}</p>
-                {{end}}
-            </div>
-            <p>
-                {{range .ConcertDates}}
-                    <p>{{.}}</p>
-                {{end}}
-            </p>
-            <div>
-            </div>
+            {{ range .Members}}
+            <p>{{.}}</p>
+            {{end}}
+        </div>
+        <p>
+            {{range .ConcertDates}}
+        <p>{{.}}</p>
+        {{end}}
+        </p>
+        <div>
         </div>
     </div>
-</body>
+</div>
 
-</html>
+{{ end }}

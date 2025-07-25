@@ -1,36 +1,20 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="../static/home.css">
-  </head>
-
-  <body>
-
-    <div class="artists-list">
-      {{ range .}} <!-- Ouvre la lecture des données de la structure Artists -->
-        <div class="artists-card">
-          <div class="artists-Image">
-            <img src="{{.Image}}" alt=""> <!-- Affiche l'image du groupe -->
+{{ define "content" }}
+    <main class="artists-list">
+      <div class="container">
+          {{ range .}}
+            <div class="card">
+              <div class="artistImage">
+                <img src="{{.Image}}" alt="">
+          
+              </div>
+          
+              <a href="artist?id={{.ID}}">
+                  <p class="artistName">{{.Name}}</p>
+              </a>
+              <p class="creationDate">{{.CreationDate}}</p>
+          
           </div>
-          <br>
-          <b>Nom du groupe :</b>  {{.Name}}
-          <br><br>
-          <b>Les membres du groupe sont :</b>
-            <!-- <ul>  Sert à construire la liste en points -->
-            {{range .Members}} <!-- Débute la lecture de la liste des membres dans Members de la Structure Artists -->
-                <li>{{.}}</li>
-            {{end}} <!-- Termine la lecture de la liste des membres dans Members de la Structure Artists -->
-            <!-- </ul> -->
-          <b>Date de fondation du groupe : </b> {{.CreationDate}}
-          <br><br>
-          <b>Leur premier album sort en </b> {{.FirstAlbum}}
-          <br>
-      </div>
-    {{end}} <!-- Termine la lecture des données de la structure Artists -->
-  </div>
-    <footer>
-      <p>©Copyright by the legendary Nobody</p>
-    </footer>
-  </body>
-</html>
+              {{end}}
+      </div> 
+  </main>
+{{ end }}
