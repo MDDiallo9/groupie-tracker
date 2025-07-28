@@ -7,6 +7,13 @@
 
   <body>
 
+
+    <!-- Méthode POST plutôt que GET. GET affiche tout dans l'URL, tandis que POST envoi tout dans la requête, plus sécurisé. -->
+    <form method="POST" action="/search">
+        <input type="text" name="search" placeholder="Rechercher un groupe, un artiste, une date..." />
+        <button type="submit"></button>
+    </form>
+
     <div class="artists-list">
       {{ range .}} <!-- Ouvre la lecture des données de la structure Artists -->
         <div class="artists-card">
@@ -17,11 +24,9 @@
           <b>Nom du groupe :</b>  {{.Name}}
           <br><br>
           <b>Les membres du groupe sont :</b>
-            <!-- <ul>  Sert à construire la liste en points -->
             {{range .Members}} <!-- Débute la lecture de la liste des membres dans Members de la Structure Artists -->
                 <li>{{.}}</li>
             {{end}} <!-- Termine la lecture de la liste des membres dans Members de la Structure Artists -->
-            <!-- </ul> -->
           <b>Date de fondation du groupe : </b> {{.CreationDate}}
           <br><br>
           <b>Leur premier album sort en </b> {{.FirstAlbum}}

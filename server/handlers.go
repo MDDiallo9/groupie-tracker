@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // Function pour afficher la page d'acueil.
@@ -58,4 +59,67 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+func search(w http.ResponseWriter, r *http.Request) {
+
+	var query string
+
+	// Vérification que c'est une méthode POST
+	if r.Method == "POST" {
+		r.ParseForm() // Mise en forme des données de la requête "r".
+		// la requête obtenue est mise en minuscule pour quelle ne soit pas sensible à la casse.
+		query = strings.ToLower(r.FormValue("search"))
+	} else {
+		// Si ce n'est pas la méthode POST.
+		http.Error(w, "Erreur d'envoi de données", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Vérification de la taille de la recherche.
+	if len(query) == 0 {
+		return
+	}
+
+	var results []api.Artist // Format pour accueillir les multiples informations
+
+	// "answer" parcours chaque sous-ensemble de la structure Artists.
+	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
+
+		// Boucle de recherche pour l'ID, la date de création, du premier album et le nom du groupe.
+		if query == strconv.Itoa(answer.ID) ||
+			query == strconv.Itoa(answer.CreationDate) ||
+			strings.Contains(strings.ToLower(answer.Name), query) ||
+			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
+
+			results = append(results, answer)
+		}
+
+		// Boucle de recherche pour les noms des artistes.
+		for _, response := range answer.Members {
+			if strings.Contains(strings.ToLower(response), query) {
+				results = append(results, answer)
+				break
+			}
+		}
+
+		// Boucle de recherche pour les dates des concerts.
+		for _, response := range answer.ConcertDates {
+			if strings.Contains(strings.ToLower(response), query) {
+				results = append(results, answer)
+				break
+			}
+		}
+
+		// Boucle de recherche pour les localisations des concerts.
+		for _, response := range answer.Locations {
+			if strings.Contains(strings.ToLower(response), query) {
+				results = append(results, answer)
+				break
+			}
+		}
+	}
+
+	tmpl := template.Must(template.ParseFiles("templates/home.html"))
+	tmpl.Execute(w, results)
 }
