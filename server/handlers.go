@@ -78,6 +78,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	// Vérification de la taille de la recherche.
 	if len(query) == 0 {
+		http.Error(w, "Veuillez écrire au moins un caractère dans la barre de recherche.", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -86,9 +87,8 @@ func search(w http.ResponseWriter, r *http.Request) {
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
 	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
 
-		// Boucle de recherche pour l'ID, la date de création, du premier album et le nom du groupe.
-		if query == strconv.Itoa(answer.ID) ||
-			query == strconv.Itoa(answer.CreationDate) ||
+		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
+		if query == strconv.Itoa(answer.CreationDate) ||
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
 

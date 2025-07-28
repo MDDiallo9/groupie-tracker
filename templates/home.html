@@ -31,6 +31,15 @@
           <br><br>
           <b>Leur premier album sort en </b> {{.FirstAlbum}}
           <br>
+          <b>Les lieux de concerts sont :</b>
+            {{range .Locations}}
+                <li>{{.}}</li>
+            {{end}}
+          <br>
+          <b>Les dates de concerts sont :</b>
+            {{range .ConcertDates}}
+                <li>{{.}}</li>
+            {{end}}
       </div>
     {{end}} <!-- Termine la lecture des données de la structure Artists -->
   </div>
