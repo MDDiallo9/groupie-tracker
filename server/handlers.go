@@ -16,8 +16,9 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// Récupère les résultats de la fonction GetArtists
 	artists := api.GetArtists()
 	for i := range artists {
+
+		// Charge les dates des concerts.
 		artists[i].ConcertDates = api.GetConcertDates(artists[i])
-		artists[i].Relations = api.GetRelations(artists[i])
 
 		// artists[i].Locations = api.GetLocations(artists[i])
 		// Boucle pour charger les localisations, avec mise en forme pour l'affichage.
@@ -27,6 +28,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 			locations[j] = strings.ReplaceAll(locations[j], "-", " - ")
 		}
 		artists[i].Locations = locations
+
+		// artists[i].Relations = api.GetRelations(artists[i])
+		// Boucle pour charger les relations, avec mise en forme pour l'affichage.
+		relations := api.GetRelations(artists[i])
+		for date, locations := range relations {
+			for i, value := range locations {
+				value = strings.ReplaceAll(value, "_", " ")
+				value = strings.ReplaceAll(value, "-", " - ")
+				locations[i] = value
+			}
+			relations[date] = locations
+		}
+		artists[i].Relations = relations
 	}
 	// Charge le template HMTL du site.
 	ts, err := template.ParseFiles("./templates/home.html")
