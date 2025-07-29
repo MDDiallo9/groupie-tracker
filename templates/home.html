@@ -7,7 +7,6 @@
 
   <body>
 
-
     <!-- Méthode POST plutôt que GET. GET affiche tout dans l'URL, tandis que POST envoi tout dans la requête, plus sécurisé. -->
     <form method="POST" action="/search">
         <input type="text" name="search" placeholder="Rechercher un groupe, un artiste, une date..." />
@@ -33,15 +32,24 @@
           <br>
           <b>Les lieux de concerts sont :</b>
             {{range .Locations}}
-                <li>{{.}}</li>
+              <li>{{.}}</li>
             {{end}}
           <br>
           <b>Les dates de concerts sont :</b>
             {{range .ConcertDates}}
                 <li>{{.}}</li>
             {{end}}
+          <br>
+          <h3>Dates et lieux de concerts :</h3>
+          <ul>
+            {{range $date, $cities := .Relations}}
+              {{range $cities}}
+                <li>{{$date}} / {{.}}</li>
+              {{end}}
+            {{end}}
+          </ul>
       </div>
-    {{end}} <!-- Termine la lecture des données de la structure Artists -->
+      {{end}} <!-- Termine la lecture des données de la structure Artists -->
   </div>
     <footer>
       <p>©Copyright by the legendary Nobody</p>

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 	"html/template"
 	"log"
@@ -14,7 +15,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	// Récupère les résultats de la fonction GetArtists
 	artists := api.GetArtists()
+	for i := range artists {
+		artists[i].ConcertDates = api.GetConcertDates(artists[i])
+		artists[i].Relations = api.GetRelations(artists[i])
 
+		// artists[i].Locations = api.GetLocations(artists[i])
+		// Boucle pour charger les localisations, avec mise en forme pour l'affichage.
+		locations := api.GetLocations(artists[i])
+		for j := range locations {
+			locations[j] = strings.ReplaceAll(locations[j], "_", " ")
+			locations[j] = strings.ReplaceAll(locations[j], "-", " - ")
+		}
+		artists[i].Locations = locations
+	}
 	// Charge le template HMTL du site.
 	ts, err := template.ParseFiles("./templates/home.html")
 	if err != nil {
@@ -24,11 +37,21 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// En réponse à la Request "r", nous renvoyons ResponseWriter "w" avec les data "artists"
-	err = ts.Execute(w, artists)
-	if err != nil {
-		log.Print(err.Error())
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
+	ts.Execute(w, artists)
+
+	// J'ai mis cette partie en commentaire et j'ai placé la ligne précédente.
+	// Je ne sais plus pourquoi cette partie en commentaire était nécessaire, mais elle génère des erreurs.
+	/* 	err = ts.Execute(w, artists)
+	   	if err != nil {
+	   		log.Print(err.Error())
+	   		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	   		return
+	   	} */
+
+	// Pour enlever le message d'erreur dans le terminal.
+	// http.Error équivaut à response.WriteHeader, et il considére que plusieurs sont actifs si ce dernier return n'est pas là.
+	// ERROR   2025/07/29 10:43:06 http: superfluous response.WriteHeader call from groupie-tracker/server.home (handlers.go:37)
+	return
 }
 
 func Artist(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +81,7 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -103,6 +127,14 @@ func search(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		// Boucle de recherche pour les localisations des concerts.
+		for _, response := range answer.Locations {
+			if strings.Contains(strings.ToLower(response), query) {
+				results = append(results, answer)
+				break
+			}
+		}
+
 		// Boucle de recherche pour les dates des concerts.
 		for _, response := range answer.ConcertDates {
 			if strings.Contains(strings.ToLower(response), query) {
@@ -111,13 +143,21 @@ func search(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// Boucle de recherche pour les localisations des concerts.
-		for _, response := range answer.Locations {
-			if strings.Contains(strings.ToLower(response), query) {
-				results = append(results, answer)
-				break
+		// Boucle de recherche pour les relations entre dates et lieux de concerts.
+		for date, cities := range answer.Relations {
+			for _, city := range cities {
+				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
+					results = append(results, answer)
+					break
+				}
 			}
 		}
+	}
+
+	// si la recherche ne correspond à rien.
+	if len(results) == 0 {
+		fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
+		return
 	}
 
 	tmpl := template.Must(template.ParseFiles("templates/home.html"))
