@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type Coordinates struct {
@@ -53,4 +55,47 @@ func Geocoding(location string) (Coordinates, error) {
 	}
 
 	return results, nil
+}
+
+func GenerateMapUrl(locations []Coordinates) (string, error) {
+	var sumLat, sumLon float64
+	var count int
+	var markers []string
+
+	if len(locations) == 0 {
+		return "", fmt.Errorf("no coordinates given")
+	}
+
+	for _, coords := range locations {
+		lat, errorLat := strconv.ParseFloat(coords.Lat, 64)
+		lon, errorLon := strconv.ParseFloat(coords.Lon, 64)
+		if errorLat != nil && errorLon != nil {
+			sumLat += lat
+			sumLon += lon
+			count++
+			markers = append(markers, fmt.Sprintf("%s,%s,red-pushpin", coords.Lat, coords.Lon))
+		} else {
+			fmt.Printf("map_generator: Warning: Impossible to convert convertir Lat/Lon (%s, %s) for center estimation: %v, %v\n", coords.Lat, coords.Lon, errorLat, errorLon)
+		}
+	}
+
+	var centerLat, centerLon string
+	if count > 0 {
+		centerLat = fmt.Sprintf("%f", sumLat/float64(count))
+		centerLon = fmt.Sprintf("%f", sumLon/float64(count))
+	} else {
+		return "", fmt.Errorf("no valid coordinates found for map center")
+	}
+
+	if len(markers) == 0 {
+		return "", fmt.Errorf("no valid marker")
+	}
+
+	mapImageUrl := fmt.Sprintf(
+		"https://staticmap.openstreetmap.de/staticmap.php?center=%s,%s&zoom=3&size=800x600&maptype=mapnik&markers=%s",
+		centerLat, centerLon, strings.Join(markers, "|"),
+	)
+
+	return mapImageUrl, nil
+
 }
