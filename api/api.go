@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Artist struct {
@@ -40,13 +42,18 @@ type RelationData struct {
 	Relations map[string][]string `json:"datesLocations"`
 }
 
-func GetArtists() []Artist {
+type Filter struct {
+	CreationDate   int
+	FirstAlbumDate int
+	Members        int
+	Location       string
+}
 
+func GetArtists() []Artist {
 	var artists []Artist
 
 	link := "https://groupietrackers.herokuapp.com/api/artists"
 	response, err := http.Get(link)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
@@ -66,11 +73,9 @@ func GetArtists() []Artist {
 }
 
 func GetLocations(artist Artist) []string {
-
 	var locations LocationData
 
 	response, err := http.Get(artist.LocationsLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
@@ -92,7 +97,6 @@ func GetLocations(artist Artist) []string {
 func GetConcertDates(artist Artist) []string {
 	var concertDates ConcertDatesData
 	response, err := http.Get(artist.ConcertDatesLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
@@ -114,7 +118,6 @@ func GetConcertDates(artist Artist) []string {
 func GetRelations(artist Artist) map[string][]string {
 	var relations RelationData
 	response, err := http.Get(artist.RelationsLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
@@ -131,4 +134,64 @@ func GetRelations(artist Artist) map[string][]string {
 		fmt.Printf("%v", err)
 	}
 	return relations.Relations
+}
+
+func FilterBy(artists []Artist, filter Filter) []Artist {
+	var results []Artist
+	filter.Location = strings.Replace(filter.Location, "-", "", -1)
+
+	for _, artist := range artists {
+		artist.Locations = GetLocations(artist)
+		artist.ConcertDates = GetConcertDates(artist)
+		artist.Relations = GetRelations(artist)
+		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
+
+		// creationDate filter
+		if filter.CreationDate != 0 {
+			if artist.CreationDate > filter.CreationDate {
+				if !containsArtist(results, artist.ID) {
+					results = append(results, artist)
+				}
+			}
+		}
+		//  firstAlbum
+		if filter.FirstAlbumDate != 0 {
+			if firstAlbumDate > filter.FirstAlbumDate {
+				if !containsArtist(results, artist.ID) {
+					results = append(results, artist)
+				}
+			}
+		}
+		// Members
+		if filter.Members != 0 {
+			if len(artist.Members) == filter.Members {
+				if !containsArtist(results, artist.ID) {
+					results = append(results, artist)
+				}
+			}
+		}
+		// Locations
+		if len(filter.Location) > 2 {
+			for _, location := range artist.Locations {
+				if strings.Contains(location, filter.Location) {
+					if !containsArtist(results, artist.ID) {
+						results = append(results, artist)
+					}
+					break
+				}
+			}
+		}
+
+	}
+
+	return results
+}
+
+func containsArtist(results []Artist, id int) bool {
+	for _, a := range results {
+		if a.ID == id {
+			return true
+		}
+	}
+	return false
 }
