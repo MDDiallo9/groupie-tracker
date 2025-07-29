@@ -43,7 +43,7 @@ type RelationData struct {
 }
 
 type Filter struct {
-	CreationDate   int
+	CreationDate   []int
 	FirstAlbumDate int
 	Members        int
 	Location       string
@@ -142,13 +142,13 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 
 	for _, artist := range artists {
 		artist.Locations = GetLocations(artist)
-		artist.ConcertDates = GetConcertDates(artist)
-		artist.Relations = GetRelations(artist)
+		/* artist.ConcertDates = GetConcertDates(artist)
+		artist.Relations = GetRelations(artist) */
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
 
 		// creationDate filter
-		if filter.CreationDate != 0 {
-			if artist.CreationDate > filter.CreationDate {
+		if len(filter.CreationDate) == 2 {
+			if artist.CreationDate >= filter.CreationDate[0] && artist.CreationDate <= filter.CreationDate[1] {
 				if !containsArtist(results, artist.ID) {
 					results = append(results, artist)
 				}
