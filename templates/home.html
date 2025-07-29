@@ -2,18 +2,20 @@
     <main class="artists-list">
       <div class="container">
           {{ range .}}
-            <div class="card">
+            <a class="card" href="artist?id={{.ID}}">
+        
+            
               <div class="artistImage">
                 <img src="{{.Image}}" alt="">
           
               </div>
           
-              <a href="artist?id={{.ID}}">
+              
                   <p class="artistName">{{.Name}}</p>
-              </a>
+              
               <p class="creationDate">{{.CreationDate}}</p>
           
-          </div>
+            </a>
               {{end}}
       </div> 
   </main>

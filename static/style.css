@@ -87,14 +87,22 @@ main {
     width: 20%;
     display: flex;
     flex-direction: column;
-
+    align-items: center;
+    cursor: pointer;
+    border: solid 1px slategrey;
+    padding: 1em 0;
+    border-radius: 7px;
+    text-align: center;
 }
 
 .artistName {
     font-size: 1.8em;
     font-weight: 800;
-    cursor: pointer;
+    max-width: fit-content;
     text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: clamp(1em, 4vw, 1.8em);
 }
 
 .createdDate {
