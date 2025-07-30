@@ -45,7 +45,7 @@ type RelationData struct {
 type Filter struct {
 	CreationDate   []int
 	FirstAlbumDate int
-	Members        int
+	Members        map[int]bool
 	Location       string
 }
 
@@ -91,7 +91,7 @@ func GetLocations(artist Artist) []string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	return locations.Locations
+	return FormatLocations(locations.Locations)
 }
 
 func GetConcertDates(artist Artist) []string {
@@ -138,55 +138,56 @@ func GetRelations(artist Artist) map[string][]string {
 
 func FilterBy(artists []Artist, filter Filter) []Artist {
 	var results []Artist
-	filter.Location = strings.Replace(filter.Location, "-", "", -1)
+	search := normalize(filter.Location)
 
 	for _, artist := range artists {
 		artist.Locations = GetLocations(artist)
-		/* artist.ConcertDates = GetConcertDates(artist)
-		artist.Relations = GetRelations(artist) */
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
+		match := true
 
-		// creationDate filter
+		// CreationDate filter
 		if len(filter.CreationDate) == 2 {
-			if artist.CreationDate >= filter.CreationDate[0] && artist.CreationDate <= filter.CreationDate[1] {
-				if !containsArtist(results, artist.ID) {
-					results = append(results, artist)
-				}
+			if artist.CreationDate < filter.CreationDate[0] || artist.CreationDate > filter.CreationDate[1] {
+				match = false
 			}
 		}
-		//  firstAlbum
+
+		// FirstAlbum filter
 		if filter.FirstAlbumDate != 0 {
-			if firstAlbumDate > filter.FirstAlbumDate {
-				if !containsArtist(results, artist.ID) {
-					results = append(results, artist)
-				}
+			if firstAlbumDate <= filter.FirstAlbumDate {
+				match = false
 			}
 		}
-		// Members
-		if filter.Members != 0 {
-			if len(artist.Members) == filter.Members {
-				if !containsArtist(results, artist.ID) {
-					results = append(results, artist)
-				}
+
+		// Members filter
+		if len(filter.Members) > 0 {
+			if !filter.Members[len(artist.Members)] {
+				match = false
 			}
 		}
-		// Locations
-		if len(filter.Location) > 2 {
+
+		// Locations filter
+		if len(search) > 2 {
+			found := false
 			for _, location := range artist.Locations {
-				if strings.Contains(location, filter.Location) {
-					if !containsArtist(results, artist.ID) {
-						results = append(results, artist)
-					}
+				if strings.Contains(normalize(location), search) {
+					found = true
 					break
 				}
 			}
+			if !found {
+				match = false
+			}
 		}
 
+		if match && !containsArtist(results, artist.ID) {
+			results = append(results, artist)
+		}
 	}
 
 	return results
 }
-
+// Vérifier si des artistes sont déjà présents dans la slice artists pour éviter les doublons
 func containsArtist(results []Artist, id int) bool {
 	for _, a := range results {
 		if a.ID == id {
@@ -194,4 +195,33 @@ func containsArtist(results []Artist, id int) bool {
 		}
 	}
 	return false
+}
+
+// Pour enlever les caratères spéciaux dans le filtre de recherche
+func normalize(s string) string {
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, " ", "")
+	s = strings.ReplaceAll(s, ",", "")
+	s = strings.ReplaceAll(s, "-", "")
+	return s
+}
+
+func capitalize(word string) string {
+    if len(word) == 0 {
+        return word
+    }
+    return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+}
+
+// Pour formatter "california-usa" en "California, USA"
+func FormatLocations(locations []string) []string {
+    var formatted []string
+    for _, loc := range locations {
+        parts := strings.Split(loc, "-")
+        for i, part := range parts {
+            parts[i] = capitalize(part)
+        }
+        formatted = append(formatted, strings.Join(parts, ", "))
+    }
+    return formatted
 }
