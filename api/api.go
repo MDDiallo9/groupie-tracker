@@ -141,8 +141,7 @@ func GetRelations(artist Artist) map[string][]string {
 	response, err := http.Get(artist.RelationsLink)
 
 	if err != nil {
-		fmt.Print(err.Error())
-		fmt.Printf("%v", err)
+		log.Fatalf("Échec de la récupération de l'API des Relations : %v", err)
 	}
 	defer response.Body.Close() // Sert à éviter de garder la connexion avec l'API ouvert après usage !
 

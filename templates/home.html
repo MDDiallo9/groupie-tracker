@@ -30,7 +30,7 @@
           <br><br>
           <b>Leur premier album sort en </b> {{.FirstAlbum}}
           <br>
-          <b>Les lieux de concerts sont :</b>
+<!--           <b>Les lieux de concerts sont :</b>
             {{range .Locations}}
               <li>{{.}}</li>
             {{end}}
@@ -38,13 +38,13 @@
           <b>Les dates de concerts sont :</b>
             {{range .ConcertDates}}
                 <li>{{.}}</li>
-            {{end}}
-          <br>
-          <h3>Dates et lieux de concerts :</h3>
+            {{end}} -->
+          <!-- l'API Relations donnant toutes les informations, les deux boucles précédentes sont mises en commentaires. -->
+          <h3>Concerts :</h3>
           <ul>
-            {{range $date, $cities := .Relations}}
-              {{range $cities}}
-                <li>{{$date}} / {{.}}</li>
+            {{range $dates, $Locations := .Relations}}
+              {{range $Locations}}
+                <li>{{$dates}} / {{.}}</li>
               {{end}}
             {{end}}
           </ul>

@@ -29,19 +29,22 @@ func home(w http.ResponseWriter, r *http.Request) {
 		}
 		artists[i].Locations = locations
 
+		//#MARK: A revoir, ça ne marche pas
 		// artists[i].Relations = api.GetRelations(artists[i])
 		// Boucle pour charger les relations, avec mise en forme pour l'affichage.
 		relations := api.GetRelations(artists[i])
+
 		for date, locations := range relations {
-			for i, value := range locations {
+			for j, value := range locations {
 				value = strings.ReplaceAll(value, "_", " ")
 				value = strings.ReplaceAll(value, "-", " - ")
-				locations[i] = value
+				locations[j] = value
 			}
 			relations[date] = locations
 		}
 		artists[i].Relations = relations
 	}
+
 	// Charge le template HMTL du site.
 	ts, err := template.ParseFiles("./templates/home.html")
 	if err != nil {
@@ -130,20 +133,23 @@ func search(w http.ResponseWriter, r *http.Request) {
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
 
+			answer.Relations = api.GetRelations(answer)
 			results = append(results, answer)
 		}
 
 		// Boucle de recherche pour les noms des artistes.
 		for _, response := range answer.Members {
 			if strings.Contains(strings.ToLower(response), query) {
+				answer.Relations = api.GetRelations(answer)
 				results = append(results, answer)
 				break
 			}
 		}
 
-		// Boucle de recherche pour les localisations des concerts.
+/* 		// Boucle de recherche pour les localisations des concerts.
 		for _, response := range answer.Locations {
 			if strings.Contains(strings.ToLower(response), query) {
+				answer.Relations = api.GetRelations(answer)
 				results = append(results, answer)
 				break
 			}
@@ -152,15 +158,18 @@ func search(w http.ResponseWriter, r *http.Request) {
 		// Boucle de recherche pour les dates des concerts.
 		for _, response := range answer.ConcertDates {
 			if strings.Contains(strings.ToLower(response), query) {
+				answer.Relations = api.GetRelations(answer)
 				results = append(results, answer)
 				break
 			}
-		}
+		} */
 
 		// Boucle de recherche pour les relations entre dates et lieux de concerts.
+		// Sa fonctionne, donc je mets les recherches sur les dates et lieux individuels en commentaires, car doublons.
 		for date, cities := range answer.Relations {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
+					answer.Relations = api.GetRelations(answer)
 					results = append(results, answer)
 					break
 				}
