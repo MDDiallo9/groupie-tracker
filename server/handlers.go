@@ -9,17 +9,6 @@ import (
 	"strconv"
 	/* "strconv" */)
 
-var artists []api.Artist
-
-func InitArtists() {
-	artists = api.GetArtists()
-	for _, artist := range artists {
-		artist.Locations = api.GetLocations(artist)
-		artist.ConcertDates = api.GetConcertDates(artist)
-		artist.Relations = api.GetRelations(artist)
-	}
-}
-
 func home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles("./templates/home.html")
