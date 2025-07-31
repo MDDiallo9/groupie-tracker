@@ -9,12 +9,17 @@
 
     <!-- Méthode POST plutôt que GET. GET affiche tout dans l'URL, tandis que POST envoi tout dans la requête, plus sécurisé. -->
     <form method="POST" action="/search">
-        <input type="text" name="search" placeholder="Rechercher un groupe, un artiste, une date..." />
+        <input type="text" name="search" list="suggestions" placeholder="Rechercher un groupe, un artiste, une date..." />
+        <datalist id="suggestions"> <!-- Partie dédiée aux suggestions quant l'utilisateur tape dans la barre de recherche -->
+          {{range .Suggestions}}
+            <option value="{{.Texte}}">{{.Label}}</option>
+            {{end}}
+        </datalist>
         <button type="submit"></button>
     </form>
 
     <div class="artists-list">
-      {{ range .}} <!-- Ouvre la lecture des données de la structure Artists -->
+      {{ range .Artists}} <!-- Ouvre la lecture des données de la structure Artists -->
         <div class="artists-card">
           <div class="artists-Image">
             <img src="{{.Image}}" alt=""> <!-- Affiche l'image du groupe -->
@@ -42,13 +47,14 @@
           <!-- l'API Relations donnant toutes les informations, les deux boucles précédentes sont mises en commentaires. -->
           <h3>Concerts :</h3>
           <ul>
+          <div>
             {{range $dates, $Locations := .Relations}}
               {{range $Locations}}
                 <li>{{$dates}} / {{.}}</li>
               {{end}}
             {{end}}
           </ul>
-      </div>
+        </div>
       {{end}} <!-- Termine la lecture des données de la structure Artists -->
   </div>
     <footer>

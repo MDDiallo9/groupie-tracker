@@ -10,8 +10,26 @@ import (
 	"strings"
 )
 
+// Structure pour les suggestions de la barre de recherche.
+type Suggestion struct {
+	Texte string // ce qui est envoyé en recherche.
+	Label string // Ce qui sera envoyé à côté dans la liste.
+}
+
 // Function pour afficher la page d'acueil.
 func home(w http.ResponseWriter, r *http.Request) {
+
+	// Tentative pour gérer la barre de suggestion.
+	data := struct {
+		Suggestions []Suggestion
+		Artists     []api.Artist
+	}{
+		Suggestions: SuggestionsGeneration(),
+		Artists:     api.GetArtists(),
+	}
+
+	tmpl := template.Must(template.ParseFiles("templates/home.html"))
+	tmpl.Execute(w, data)
 
 	// Récupère les résultats de la fonction GetArtists
 	artists := api.GetArtists()
@@ -46,7 +64,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Charge le template HMTL du site.
-	ts, err := template.ParseFiles("./templates/home.html")
+	/* ts, err := template.ParseFiles("./templates/home.html")
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -54,7 +72,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// En réponse à la Request "r", nous renvoyons ResponseWriter "w" avec les data "artists"
-	ts.Execute(w, artists)
+	ts.Execute(w, artists) */
 
 	// J'ai mis cette partie en commentaire et j'ai placé la ligne précédente.
 	// Je ne sais plus pourquoi cette partie en commentaire était nécessaire, mais elle génère des erreurs.
@@ -128,48 +146,50 @@ func search(w http.ResponseWriter, r *http.Request) {
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
 	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
 
+		answer.Relations = api.GetRelations(answer)
+
 		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
 		if query == strconv.Itoa(answer.CreationDate) ||
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
 
-			answer.Relations = api.GetRelations(answer)
+			// answer.Relations = api.GetRelations(answer)
 			results = append(results, answer)
 		}
 
 		// Boucle de recherche pour les noms des artistes.
 		for _, response := range answer.Members {
 			if strings.Contains(strings.ToLower(response), query) {
-				answer.Relations = api.GetRelations(answer)
+				// answer.Relations = api.GetRelations(answer)
 				results = append(results, answer)
 				break
 			}
 		}
 
-/* 		// Boucle de recherche pour les localisations des concerts.
-		for _, response := range answer.Locations {
-			if strings.Contains(strings.ToLower(response), query) {
-				answer.Relations = api.GetRelations(answer)
-				results = append(results, answer)
-				break
-			}
-		}
+		/* 		// Boucle de recherche pour les localisations des concerts.
+		   		for _, response := range answer.Locations {
+		   			if strings.Contains(strings.ToLower(response), query) {
+		   				answer.Relations = api.GetRelations(answer)
+		   				results = append(results, answer)
+		   				break
+		   			}
+		   		}
 
-		// Boucle de recherche pour les dates des concerts.
-		for _, response := range answer.ConcertDates {
-			if strings.Contains(strings.ToLower(response), query) {
-				answer.Relations = api.GetRelations(answer)
-				results = append(results, answer)
-				break
-			}
-		} */
+		   		// Boucle de recherche pour les dates des concerts.
+		   		for _, response := range answer.ConcertDates {
+		   			if strings.Contains(strings.ToLower(response), query) {
+		   				answer.Relations = api.GetRelations(answer)
+		   				results = append(results, answer)
+		   				break
+		   			}
+		   		} */
 
 		// Boucle de recherche pour les relations entre dates et lieux de concerts.
 		// Sa fonctionne, donc je mets les recherches sur les dates et lieux individuels en commentaires, car doublons.
 		for date, cities := range answer.Relations {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
-					answer.Relations = api.GetRelations(answer)
+					// answer.Relations = api.GetRelations(answer)
 					results = append(results, answer)
 					break
 				}
@@ -183,6 +203,51 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	data := struct {
+		Suggestions []Suggestion
+		Artists     []api.Artist
+	}{
+		Suggestions: SuggestionsGeneration(),
+		Artists:     results,
+	}
+
 	tmpl := template.Must(template.ParseFiles("templates/home.html"))
-	tmpl.Execute(w, results)
+	tmpl.Execute(w, data)
+}
+
+func SuggestionsGeneration() []Suggestion {
+
+	var suggestions []Suggestion
+	
+
+	for _, artist := range api.GetArtists() {
+
+		artist.Locations = api.GetLocations(artist)
+
+		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
+		suggestions = append(suggestions,
+			Suggestion{Texte: artist.Name, Label: "Groupe de musique"},
+			Suggestion{Texte: strconv.Itoa(artist.CreationDate), Label: "Date de Fondation du Groupe de musique"},
+			Suggestion{Texte: artist.FirstAlbum, Label: "Date de sortie du premier Album"},
+		)
+
+		// Suggestion pour : Artistes composant un groupe de musique.
+		for _, member := range artist.Members {
+			suggestions = append(suggestions, Suggestion{Texte: member, Label: "Membre d'un groupe de musique"})
+		}
+
+		// Suggestion pour : les villes des concerts.
+		for _, city := range artist.Locations {
+			suggestions = append(suggestions, Suggestion{Texte: city, Label: "Ville"})
+		}
+
+		/* 		// Suggestion pour : les dates des concerts.
+		   		// Non demandé dans les instructions.
+		   		for _, dates := range artist.Relations {
+		   			for _, date := range dates {
+		   				suggestions = append(suggestions, Suggestion{Texte: date, Label: "Date de concert"})
+		   			}
+		   		} */
+	}
+	return suggestions
 }
