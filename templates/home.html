@@ -1,36 +1,43 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="../static/home.css">
-  </head>
-
-  <body>
-
-    <div class="artists-list">
-      {{ range .}} <!-- Ouvre la lecture des données de la structure Artists -->
-        <div class="artists-card">
-          <div class="artists-Image">
-            <img src="{{.Image}}" alt=""> <!-- Affiche l'image du groupe -->
-          </div>
-          <br>
-          <b>Nom du groupe :</b>  {{.Name}}
-          <br><br>
-          <b>Les membres du groupe sont :</b>
-            <!-- <ul>  Sert à construire la liste en points -->
-            {{range .Members}} <!-- Débute la lecture de la liste des membres dans Members de la Structure Artists -->
-                <li>{{.}}</li>
-            {{end}} <!-- Termine la lecture de la liste des membres dans Members de la Structure Artists -->
-            <!-- </ul> -->
-          <b>Date de fondation du groupe : </b> {{.CreationDate}}
-          <br><br>
-          <b>Leur premier album sort en </b> {{.FirstAlbum}}
-          <br>
+{{ define "content" }}
+<main class="artists-list">
+  <div class="container">
+    <form action="/" method="post">
+      <div id="creationDate">
+        <label>Career start: <input type="range" name="creationDate" min="1950" max="2025"></label>
+        <label>First album: <input type="range" name="FirstAlbumDate" min="1950" max="2025"></label>
       </div>
-    {{end}} <!-- Termine la lecture des données de la structure Artists -->
+      <div id="members-filter" style="display: flex; align-items: center; gap: 0.5em;">
+        <label style="margin-right: 0.5em;">Nº Members:</label>
+        <label><input type="checkbox" name="members" value="1"> 1</label>
+        <label><input type="checkbox" name="members" value="2"> 2</label>
+        <label><input type="checkbox" name="members" value="3"> 3</label>
+        <label><input type="checkbox" name="members" value="4"> 4</label>
+        <label><input type="checkbox" name="members" value="5"> 5</label>
+        <label><input type="checkbox" name="members" value="6"> 6</label>
+        <label><input type="checkbox" name="members" value="7"> 7</label>
+      </div>
+      <label>
+        <input type="text" name="Location" placeholder="Enter Location">
+        <input type="submit" value="✅">
+      </label>
+      
+    </form>
+    {{ range .}}
+    <a class="card" href="artist?id={{.ID}}">
+
+
+      <div class="artistImage">
+        <img src="{{.Image}}" alt="">
+
+      </div>
+
+
+      <p class="artistName">{{.Name}}</p>
+
+      <p class="creationDate">{{.CreationDate}}</p>
+
+    </a>
+    {{end}}
   </div>
-    <footer>
-      <p>©Copyright by the legendary Nobody</p>
-    </footer>
-  </body>
-</html>
+</main>
+{{ end }}
