@@ -22,6 +22,7 @@ type Artist struct {
 	ConcertDates     []string
 	RelationsLink    string `json:"relations"`
 	Relations        map[string][]string
+	MapURL           string
 }
 
 type LocationData struct {
