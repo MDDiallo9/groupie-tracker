@@ -1,22 +1,43 @@
 {{ define "content" }}
-    <main class="artists-list">
-      <div class="container">
-          {{ range .}}
-            <a class="card" href="artist?id={{.ID}}">
-        
-            
-              <div class="artistImage">
-                <img src="{{.Image}}" alt="">
-          
-              </div>
-          
-              
-                  <p class="artistName">{{.Name}}</p>
-              
-              <p class="creationDate">{{.CreationDate}}</p>
-          
-            </a>
-              {{end}}
-      </div> 
-  </main>
+<main class="artists-list">
+  <div class="container">
+    <form action="/" method="post">
+      <div id="creationDate">
+        <label>Career start: <input type="range" name="creationDate" min="1950" max="2025"></label>
+        <label>First album: <input type="range" name="FirstAlbumDate" min="1950" max="2025"></label>
+      </div>
+      <div id="members-filter" style="display: flex; align-items: center; gap: 0.5em;">
+        <label style="margin-right: 0.5em;">Nº Members:</label>
+        <label><input type="checkbox" name="members" value="1"> 1</label>
+        <label><input type="checkbox" name="members" value="2"> 2</label>
+        <label><input type="checkbox" name="members" value="3"> 3</label>
+        <label><input type="checkbox" name="members" value="4"> 4</label>
+        <label><input type="checkbox" name="members" value="5"> 5</label>
+        <label><input type="checkbox" name="members" value="6"> 6</label>
+        <label><input type="checkbox" name="members" value="7"> 7</label>
+      </div>
+      <label>
+        <input type="text" name="Location" placeholder="Enter Location">
+        <input type="submit" value="✅">
+      </label>
+      
+    </form>
+    {{ range .}}
+    <a class="card" href="artist?id={{.ID}}">
+
+
+      <div class="artistImage">
+        <img src="{{.Image}}" alt="">
+
+      </div>
+
+
+      <p class="artistName">{{.Name}}</p>
+
+      <p class="creationDate">{{.CreationDate}}</p>
+
+    </a>
+    {{end}}
+  </div>
+</main>
 {{ end }}
