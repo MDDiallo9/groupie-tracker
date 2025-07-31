@@ -95,7 +95,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	if isFilterFilled(filter) {
 		artists = api.FilterBy(artists, filter)
-		log.Println(artists,filter)
 	}
 
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
