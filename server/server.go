@@ -16,6 +16,7 @@ func Routes() *http.ServeMux {
 	// mux.Handle permet de charger le CSS sur la page html.
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
+  InitArtists()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/artist", Artist)
 	mux.HandleFunc("/search", search)

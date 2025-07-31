@@ -1,32 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Name}}</title>
-</head>
-
-<body>
-    <div>
-        <h1>{{ .Name}}</h1> <!-- Affiche le nom du groupe -->
-        <img src={{.Image}} alt="">
-        <div>
-            <div>{{ .FirstAlbum }}</div> <!-- Template data needs to be time.Time to format -->
+{{ define "content" }}
+<div class="container">
+    <div class="artist-profile">
+        <div class="artist-profile-img">
+            <img src="{{ .Image }}" alt="{{ .Name }}">
+        </div>
+        <div class="artist-profile-info">
             <div>
-                {{ range .Members}} <!-- Affiche les noms des artistes du groupe -->
-                <p>{{.}}</p> <!-- Permet de faire le saut de ligne avec un Point "." -->
-                {{end}} <!-- Met fin à la boucle range -->
+                <div class="artist-profile-name">{{ .Name }}</div>
+                <div class="artist-profile-meta">
+                    <span>Debut: {{ .FirstAlbum }}</span>
+                    <span>Formed: {{ .CreationDate }}</span>
+                    <span>Members: {{ len .Members }}</span>
+                </div>
             </div>
+            <div class="artist-profile-section">
+                <h2>Members</h2>
+                <div class="artist-members-list">
+                    {{ range .Members }}
+                    <span>{{ . }}</span>
+                    {{ end }}
+                </div>
+            </div>
+            <div class="artist-profile-section">
+                <details>
+                    <summary class="dropdown-summary">
+                        Concert Locations <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
+                    </summary>
+                    <div class="artist-locations-list">
+                        {{ range .Locations }}
+                        <span>{{ . }}</span>
+                        {{ end }}
+                    </div>
+                </details>
+            </div>
+            <div class="artist-profile-section">
+                <details>
+                    <summary class="dropdown-summary">
+                        Concert Dates <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
+                    </summary>
+                    <div class="artist-dates-list">
+                        {{ range .ConcertDates }}
+                        <span>{{ . }}</span>
+                        {{ end }}
+                    </div>
+                </details>
             <p>
-                {{range .ConcertDates}} <!-- Affiche les dates des concerts -->
-                    <p>{{.}}</p> <!-- Permet de faire le saut de ligne avec un Point "." -->
-                {{end}} <!-- Met fin à la boucle range -->
+                {{range .ConcertDates}}
+                    <p>{{.}}</p>
+                {{end}}
             </p>
             <div>
+                <img src="{{.MapURL}}" alt="Error when loading map">
             </div>
         </div>
     </div>
-</body>
-
-</html>
+</div>
+{{ end }}

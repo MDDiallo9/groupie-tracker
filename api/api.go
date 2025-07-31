@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+  "strconv"
+	"strings"
 )
 
 // Structure du json artists et réunissant toutes les composantes des informations des autres fichiers json.
@@ -23,6 +25,7 @@ type Artist struct {
 	ConcertDates     []string            // Liste de dates
 	RelationsLink    string              `json:"relations"` // sous forme d'URL
 	Relations        map[string][]string // Assemble les localisations et dates de concerts.
+  MapURL           string
 }
 
 // Structure du json locations
@@ -60,6 +63,7 @@ func GetArtists() []Artist {
 	defer response.Body.Close() // Sert à éviter de garder la connexion avec l'API ouvert après usage !
 
 	// Lecture des données obtenues.
+
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -81,11 +85,11 @@ func GetLocations(artist Artist) []string {
 	// Envoi une requête GET pour obtenir les informations du fichier json.
 	// L'URL est obtenue à partir de la Structure artist.LocationsLink.
 	response, err := http.Get(artist.LocationsLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
 	}
+
 	defer response.Body.Close() // Sert à éviter de garder la connexion avec l'API ouvert après usage !
 
 	// Lecture des données obtenues.
@@ -95,11 +99,12 @@ func GetLocations(artist Artist) []string {
 	}
 
 	// Convertit grâce à json.Unmarshal le json en Bytes.
+
 	err = json.Unmarshal(responseData, &locations)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	return locations.Locations
+  return FormatLocations(locations.Locations)
 }
 
 func GetConcertDates(artist Artist) []string {
@@ -110,7 +115,6 @@ func GetConcertDates(artist Artist) []string {
 	// Envoi une requête GET pour obtenir les informations du fichier json.
 	// L'URL est obtenue à partir de la Structure artist.ConcertDatesLink.
 	response, err := http.Get(artist.ConcertDatesLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
@@ -133,6 +137,7 @@ func GetConcertDates(artist Artist) []string {
 
 func GetRelations(artist Artist) map[string][]string {
 
+
 	// Création d'une variable relations de type RelationData pour pouvoir appeler la structure dans la fonction.
 	var relations RelationData
 
@@ -141,20 +146,113 @@ func GetRelations(artist Artist) map[string][]string {
 	response, err := http.Get(artist.RelationsLink)
 
 	if err != nil {
-		log.Fatalf("Échec de la récupération de l'API des Relations : %v", err)
+		fmt.Print(err.Error())
+		fmt.Printf("%v", err)
 	}
 	defer response.Body.Close() // Sert à éviter de garder la connexion avec l'API ouvert après usage !
 
 	// Lecture des données obtenues.
+
 	responseData, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 
 	// Convertit grâce à json.Unmarshal le json en Bytes.
+
 	err = json.Unmarshal(responseData, &relations)
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
 	return relations.Relations
+}
+
+func FilterBy(artists []Artist, filter Filter) []Artist {
+	var results []Artist
+	search := normalize(filter.Location)
+
+	for _, artist := range artists {
+		artist.Locations = GetLocations(artist)
+		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
+		match := true
+
+		// CreationDate filter
+		if len(filter.CreationDate) == 2 {
+			if artist.CreationDate < filter.CreationDate[0] || artist.CreationDate > filter.CreationDate[1] {
+				match = false
+			}
+		}
+
+		// FirstAlbum filter
+		if filter.FirstAlbumDate != 0 {
+			if firstAlbumDate <= filter.FirstAlbumDate {
+				match = false
+			}
+		}
+
+		// Members filter
+		if len(filter.Members) > 0 {
+			if !filter.Members[len(artist.Members)] {
+				match = false
+			}
+		}
+
+		// Locations filter
+		if len(search) > 2 {
+			found := false
+			for _, location := range artist.Locations {
+				if strings.Contains(normalize(location), search) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				match = false
+			}
+		}
+
+		if match && !containsArtist(results, artist.ID) {
+			results = append(results, artist)
+		}
+	}
+
+	return results
+}
+// Vérifier si des artistes sont déjà présents dans la slice artists pour éviter les doublons
+func containsArtist(results []Artist, id int) bool {
+	for _, a := range results {
+		if a.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// Pour enlever les caratères spéciaux dans le filtre de recherche
+func normalize(s string) string {
+	s = strings.ToLower(s)
+	s = strings.ReplaceAll(s, " ", "")
+	s = strings.ReplaceAll(s, ",", "")
+	s = strings.ReplaceAll(s, "-", "")
+	return s
+}
+
+func capitalize(word string) string {
+    if len(word) == 0 {
+        return word
+    }
+    return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+}
+
+// Pour formatter "california-usa" en "California, USA"
+func FormatLocations(locations []string) []string {
+    var formatted []string
+    for _, loc := range locations {
+        parts := strings.Split(loc, "-")
+        for i, part := range parts {
+            parts[i] = capitalize(part)
+        }
+        formatted = append(formatted, strings.Join(parts, ", "))
+    }
+    return formatted
 }
