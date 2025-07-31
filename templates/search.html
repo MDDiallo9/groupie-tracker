@@ -1,0 +1,19 @@
+<!-- Inutilisé, à supprimer plus tard ? -->
+
+<html lang="en">
+<head>
+<h2>Résultats :</h2>
+{{ if .Results }}
+  <ul>
+    {{ range .Results }}
+      <li>{{.Name}}</li>
+    {{ end }}
+  </ul>
+{{ else }}
+  <p>Aucun artiste trouvé.</p>
+{{ end }}
+</head>
+<body>
+    
+</body>
+</html>
