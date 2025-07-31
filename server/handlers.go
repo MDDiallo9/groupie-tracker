@@ -1,19 +1,18 @@
 package server
 
 import (
+	"fmt"
+	"groupie-tracker/api"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
-
-	"groupie-tracker/api"
-	/* "strconv" */)
+)
 
 func home(w http.ResponseWriter, r *http.Request) {
 	var filter api.Filter
 	if r.Method == "POST" {
 		r.ParseForm()
-		/* log.Printf("%+v\n", r.Form) */
 		fad, _ := strconv.Atoi(r.Form["FirstAlbumDate"][0])
 		cdMin, _ := strconv.Atoi(r.Form["creationDate"][0])
 		cdMax := 2025
@@ -45,7 +44,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 		log.Println(artists,filter)
 	}
 
-
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print(err.Error())
@@ -64,8 +62,19 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	idstring := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(idstring)
 
-	artists := api.GetArtists()
 	artist := artists[id-1]
+	var coords []api.Coordinates
+	for _, location := range api.GetLocations(artist) {
+		coord, err := api.Geocoding(location)
+		if err == nil {
+			coords = append(coords, coord)
+		}
+	}
+	mapURL, err := api.GenerateMapUrl(coords)
+	if err != nil {
+		fmt.Println("error when generating map url :", err)
+	}
+	artist.MapURL = mapURL
 
 	artist.Locations = api.GetLocations(artist)
 	artist.ConcertDates = api.GetConcertDates(artist)
