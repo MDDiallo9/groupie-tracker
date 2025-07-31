@@ -47,6 +47,13 @@ type RelationData struct {
 	Relations map[string][]string `json:"datesLocations"` // Assemble les localisations et dates de concerts.
 }
 
+type Filter struct {
+	CreationDate   []int
+	FirstAlbumDate int
+	Members        map[int]bool
+	Location       string
+}
+
 func GetArtists() []Artist {
 
 	// Création d'une variable artists de type []Artist pour pouvoir appeler la structure dans la fonction.

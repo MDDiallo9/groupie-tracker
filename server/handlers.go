@@ -106,6 +106,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = ts.ExecuteTemplate(w, "base.html", artists)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func Artist(w http.ResponseWriter, r *http.Request) {
 	idstring := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(idstring)
@@ -207,13 +214,13 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := struct {
+	/* data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(),
 		Artists:     results,
-	}
+	} */
 }
 
 func SuggestionsGeneration() []Suggestion {
@@ -243,7 +250,7 @@ func SuggestionsGeneration() []Suggestion {
 		}
 	}
 	return suggestions
-
+}
 
 func isFilterFilled(f api.Filter) bool {
     for _, v := range f.Members {
