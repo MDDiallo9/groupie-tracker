@@ -99,7 +99,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 		Artists:     api.GetArtists(),
 	}
 
-	
 	/* artists := api.GetArtists() */
 
 	if isFilterFilled(filter) {
@@ -254,19 +253,31 @@ func SuggestionsGeneration() []Suggestion {
 
 		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
 		suggestions = append(suggestions,
-			Suggestion{Texte: artist.Name, Label: "Groupe de musique"},
-			Suggestion{Texte: strconv.Itoa(artist.CreationDate), Label: "Date de Fondation du Groupe de musique"},
-			Suggestion{Texte: artist.FirstAlbum, Label: "Date de sortie du premier Album"},
+			Suggestion{
+				Texte: artist.Name,
+				Label: "Groupe de musique"},
+			Suggestion{
+				Texte: strconv.Itoa(artist.CreationDate),
+				Label: "Date de Fondation du Groupe : " + artist.Name},
+			Suggestion{
+				Texte: artist.FirstAlbum,
+				Label: "Date de sortie du premier Album du groupe " + artist.Name},
 		)
 
 		// Suggestion pour : Artistes composant un groupe de musique.
 		for _, member := range artist.Members {
-			suggestions = append(suggestions, Suggestion{Texte: member, Label: "Membre d'un groupe de musique"})
+			suggestions = append(suggestions, Suggestion{
+				Texte: member,
+				Label: "Membre du groupe : " + artist.Name,
+			})
 		}
 
 		// Suggestion pour : les villes des concerts.
 		for _, city := range artist.Locations {
-			suggestions = append(suggestions, Suggestion{Texte: city, Label: "Ville"})
+			suggestions = append(suggestions, Suggestion{
+				Texte: city,
+				Label: "Ville où joue le groupe " + artist.Name,
+			})
 		}
 	}
 	return suggestions
