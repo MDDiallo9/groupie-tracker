@@ -90,8 +90,17 @@ func home(w http.ResponseWriter, r *http.Request) {
 			CreationDate:   []int{cdMin, cdMax},
 		} // Besoin de recharger home avec le api.FilterBy(artists,filter)
 	}
+
+	data := struct {
+		Suggestions []Suggestion
+		Artists     []api.Artist
+	}{
+		Suggestions: SuggestionsGeneration(),
+		Artists:     api.GetArtists(),
+	}
+
 	
-	artists := api.GetArtists()
+	/* artists := api.GetArtists() */
 
 	if isFilterFilled(filter) {
 		artists = api.FilterBy(artists, filter)
@@ -105,7 +114,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base.html", artists)
+	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -140,8 +149,8 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-  
-  	err = ts.ExecuteTemplate(w, "base.html", artist)
+
+	err = ts.ExecuteTemplate(w, "base.html", artist)
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -195,7 +204,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Boucle de recherche pour les relations entre dates et lieux de concerts.
-		// Sa fonctionne, donc je mets les recherches sur les dates et lieux individuels en commentaires, car doublons.
 		for date, cities := range answer.Relations {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
@@ -213,19 +221,32 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/* data := struct {
+	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(),
 		Artists:     results,
-	} */
+	}
+
+	// Exécution du template
+	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base.html", data)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
 }
 
 func SuggestionsGeneration() []Suggestion {
 
 	var suggestions []Suggestion
-	
 
 	for _, artist := range api.GetArtists() {
 
@@ -252,16 +273,16 @@ func SuggestionsGeneration() []Suggestion {
 }
 
 func isFilterFilled(f api.Filter) bool {
-    for _, v := range f.Members {
-        if v {
-            return true
-        }
-    }
-    if f.Location != "" || f.FirstAlbumDate != 0 {
-        return true
-    }
-    if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 2025) {
-        return true
-    }
-    return false
+	for _, v := range f.Members {
+		if v {
+			return true
+		}
+	}
+	if f.Location != "" || f.FirstAlbumDate != 0 {
+		return true
+	}
+	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 2025) {
+		return true
+	}
+	return false
 }
