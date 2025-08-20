@@ -264,7 +264,7 @@ func SuggestionsGeneration() []Suggestion {
 
 		artist.Locations = api.GetLocations(artist)
 
-		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
+		// Suggestions pour : Groupe de Musique, Date de création du Groupe, Date de sortie du Premier Album.
 		suggestions = append(suggestions,
 			Suggestion{
 				Texte: artist.Name,
