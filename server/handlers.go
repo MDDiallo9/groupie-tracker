@@ -177,27 +177,30 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var results []api.Artist // Format pour accueillir les multiples informations
+	unique := make(map[string]bool) // Pour éviter les doublons.
+	var results []api.Artist        // Format pour accueillir les multiples informations
 
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
 	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
-
 		answer.Relations = api.GetRelations(answer)
+
+		nonUnique := false
 
 		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
 		if query == strconv.Itoa(answer.CreationDate) ||
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
-
+			nonUnique = true
 			// answer.Relations = api.GetRelations(answer)
-			results = append(results, answer)
+			// results = append(results, answer)
 		}
 
 		// Boucle de recherche pour les noms des artistes.
 		for _, response := range answer.Members {
 			if strings.Contains(strings.ToLower(response), query) {
 				// answer.Relations = api.GetRelations(answer)
-				results = append(results, answer)
+				nonUnique = true
+				// results = append(results, answer)
 				break
 			}
 		}
@@ -207,9 +210,19 @@ func search(w http.ResponseWriter, r *http.Request) {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
 					// answer.Relations = api.GetRelations(answer)
-					results = append(results, answer)
+					nonUnique = true
+					// results = append(results, answer)
 					break
 				}
+			}
+		}
+
+		// Condition pour éviter les doublons.
+		if nonUnique {
+			identifiant := strings.ToLower(answer.Name)
+			if !unique[identifiant] {
+				unique[identifiant] = true
+				results = append(results, answer)
 			}
 		}
 	}
