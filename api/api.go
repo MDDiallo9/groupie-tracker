@@ -192,31 +192,26 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		/* if filter.FirstAlbumDate != 0 {
-			if firstAlbumDate <= filter.FirstAlbumDate {
-				match = false
-			}
-		} */
 
-		if len(filter.FirstAlbumDate) == 2 {
+		if len(filter.FirstAlbumDate) == 2  {
 			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
 		}
 
 		// Members filter
-		if len(filter.Members) > 0 {
-			if !filter.Members[len(artist.Members)] {
-				match = false
-			}
-		}
+		if anyMemberSelected(filter.Members) {
+            if !filter.Members[len(artist.Members)] {
+                match = false
+            }
+        }
 
 		// Locations filter
 		if len(search) > 2 {
-			log.Print("searching")
 			found := false
 			for _, location := range artist.Locations {
 				if strings.Contains(normalize(location), search) {
+					log.Print("loc found")
 					found = true
 					break
 				}
@@ -230,6 +225,8 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 			results = append(results, artist)
 		}
 	}
+
+	log.Print(results)
 
 	return results
 }
@@ -270,4 +267,13 @@ func FormatLocations(locations []string) []string {
         formatted = append(formatted, strings.Join(parts, ", "))
     }
     return formatted
+}
+
+func anyMemberSelected(members map[int]bool) bool {
+    for _, v := range members {
+        if v {
+            return true
+        }
+    }
+    return false
 }

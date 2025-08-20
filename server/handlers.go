@@ -19,8 +19,8 @@ type Suggestion struct {
 
 func home(w http.ResponseWriter, r *http.Request) {
 	var filter api.Filter
-	filter.CreationDate = []int{0,0}
-	filter.FirstAlbumDate = []int{0,0}
+	filter.CreationDate = []int{1950,2025}
+	filter.FirstAlbumDate = []int{1970,2020}
 	if r.Method == "POST" {
 		r.ParseForm()
 		// First Album Date
@@ -244,10 +244,10 @@ func isFilterFilled(f api.Filter) bool {
 			return true
 		}
 	}
-	if f.Location != "" || (f.FirstAlbumDate[0] != 0 || f.FirstAlbumDate[1] != 0)  {
+	if f.Location != "" || (f.FirstAlbumDate[0] != 1970 || f.FirstAlbumDate[1] != 2020)  {
 		return true
 	}
-	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 0) {
+	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 1950 || f.CreationDate[1] != 2025) {
 		return true
 	}
 	return false
