@@ -49,7 +49,7 @@ type RelationData struct {
 
 type Filter struct {
 	CreationDate   []int
-	FirstAlbumDate int
+	FirstAlbumDate []int
 	Members        map[int]bool
 	Location       string
 }
@@ -179,6 +179,7 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 	search := normalize(filter.Location)
 
 	for _, artist := range artists {
+
 		artist.Locations = GetLocations(artist)
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
 		match := true
@@ -191,8 +192,14 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		if filter.FirstAlbumDate != 0 {
+		/* if filter.FirstAlbumDate != 0 {
 			if firstAlbumDate <= filter.FirstAlbumDate {
+				match = false
+			}
+		} */
+
+		if len(filter.FirstAlbumDate) == 2 {
+			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
 		}
@@ -206,6 +213,7 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 
 		// Locations filter
 		if len(search) > 2 {
+			log.Print("searching")
 			found := false
 			for _, location := range artist.Locations {
 				if strings.Contains(normalize(location), search) {

@@ -2,12 +2,13 @@ package server
 
 import (
 	"fmt"
-	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 )
 
 // Structure pour les suggestions de la barre de recherche.
@@ -16,78 +17,30 @@ type Suggestion struct {
 	Label string // Ce qui sera envoyé à côté dans la liste.
 }
 
-/*
-// Function pour afficher la page d'acueil.
-func home(w http.ResponseWriter, r *http.Request) {
-
-	// Tentative pour gérer la barre de suggestion.
-	data := struct {
-		Suggestions []Suggestion
-		Artists     []api.Artist
-	}{
-		Suggestions: SuggestionsGeneration(),
-		Artists:     api.GetArtists(),
-	}
-
-	tmpl := template.Must(template.ParseFiles("templates/home.html"))
-	tmpl.Execute(w, data)
-
-	for i := range artists {
-
-		// Charge les dates des concerts.
-		artists[i].ConcertDates = api.GetConcertDates(artists[i])
-
-		// artists[i].Locations = api.GetLocations(artists[i])
-		// Boucle pour charger les localisations, avec mise en forme pour l'affichage.
-		locations := api.GetLocations(artists[i])
-		for j := range locations {
-			locations[j] = strings.ReplaceAll(locations[j], "_", " ")
-			locations[j] = strings.ReplaceAll(locations[j], "-", " - ")
-		}
-		artists[i].Locations = locations
-
-		//#MARK: A revoir, ça ne marche pas
-		// artists[i].Relations = api.GetRelations(artists[i])
-		// Boucle pour charger les relations, avec mise en forme pour l'affichage.
-		relations := api.GetRelations(artists[i])
-
-		for date, locations := range relations {
-			for j, value := range locations {
-				value = strings.ReplaceAll(value, "_", " ")
-				value = strings.ReplaceAll(value, "-", " - ")
-				locations[j] = value
-			}
-			relations[date] = locations
-		}
-		artists[i].Relations = relations
-	}
-}*/
-
 func home(w http.ResponseWriter, r *http.Request) {
 	var filter api.Filter
+	filter.CreationDate = []int{0,0}
+	filter.FirstAlbumDate = []int{0,0}
 	if r.Method == "POST" {
 		r.ParseForm()
-		fad, _ := strconv.Atoi(r.Form["FirstAlbumDate"][0])
-		cdMin, _ := strconv.Atoi(r.Form["creationDate"][0])
-		cdMax := 2025
+		// First Album Date
+		minFAD, _ := strconv.Atoi(r.Form.Get("minfAd"))
+		maxFAD, _ := strconv.Atoi(r.Form.Get("maxfAd"))
+		// Creation Date
+		minCD, _ := strconv.Atoi(r.Form.Get("minCD"))
+		maxCD, _ := strconv.Atoi(r.Form.Get("maxCD"))
 		members := map[int]bool{
-			1: false,
-			2: false,
-			3: false,
-			4: false,
-			5: false,
-			6: false,
-			7: false,
+			1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false,
 		}
 		for _, num := range r.Form["members"] {
 			n, _ := strconv.Atoi(num)
 			members[n] = true
 		}
 		filter = api.Filter{
-			Location:       r.Form["Location"][0],
-			FirstAlbumDate: fad,
+			Location:       r.Form.Get("Location"),
+			FirstAlbumDate: []int{minFAD,maxFAD}, // or use both min/max if your filter supports a range
 			Members:        members,
-			CreationDate:   []int{cdMin, cdMax},
+			CreationDate:   []int{minCD, maxCD},
 		} // Besoin de recharger home avec le api.FilterBy(artists,filter)
 	}
 
@@ -102,11 +55,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 	/* artists := api.GetArtists() */
 
 	if isFilterFilled(filter) {
-		artists = api.FilterBy(artists, filter)
+		data.Artists = api.FilterBy(artists, filter)
+		log.Print(filter)
+
 	}
 
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
-
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -157,7 +111,6 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 }
 
 func search(w http.ResponseWriter, r *http.Request) {
-
 	var query string
 
 	// Vérification que c'est une méthode POST
@@ -244,7 +197,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 }
 
 func SuggestionsGeneration() []Suggestion {
-
 	var suggestions []Suggestion
 
 	for _, artist := range api.GetArtists() {
@@ -255,13 +207,16 @@ func SuggestionsGeneration() []Suggestion {
 		suggestions = append(suggestions,
 			Suggestion{
 				Texte: artist.Name,
-				Label: "Groupe de musique"},
+				Label: "Groupe de musique",
+			},
 			Suggestion{
 				Texte: strconv.Itoa(artist.CreationDate),
-				Label: "Date de Fondation du Groupe : " + artist.Name},
+				Label: "Date de Fondation du Groupe : " + artist.Name,
+			},
 			Suggestion{
 				Texte: artist.FirstAlbum,
-				Label: "Date de sortie du premier Album du groupe " + artist.Name},
+				Label: "Date de sortie du premier Album du groupe " + artist.Name,
+			},
 		)
 
 		// Suggestion pour : Artistes composant un groupe de musique.
@@ -289,10 +244,10 @@ func isFilterFilled(f api.Filter) bool {
 			return true
 		}
 	}
-	if f.Location != "" || f.FirstAlbumDate != 0 {
+	if f.Location != "" || (f.FirstAlbumDate[0] != 0 || f.FirstAlbumDate[1] != 0)  {
 		return true
 	}
-	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 2025) {
+	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 0) {
 		return true
 	}
 	return false
