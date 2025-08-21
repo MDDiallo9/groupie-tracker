@@ -110,6 +110,28 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func IndexPage(w http.ResponseWriter, r *http.Request){
+	data := struct {
+		Playlist20 []api.Artist
+	}{
+		
+		Playlist20 : api.FilterBy(artists, api.Filter{CreationDate: []int{2000,2010}})[8:],
+	}
+
+	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base.html", data)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 func search(w http.ResponseWriter, r *http.Request) {
 	var query string
 

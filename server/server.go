@@ -20,6 +20,7 @@ func Routes() *http.ServeMux {
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/artist", Artist)
 	mux.HandleFunc("/search", search)
+	mux.HandleFunc("/index",IndexPage)
 
 	return mux
 }

@@ -8,9 +8,63 @@
 <body>
     <nav>
         <div id="logo">Groupie Tracker</div>
-        <footer>
-            2025
-        </footer>
+
+        <form action="/" method="post" id="filters">
+            <div id="firstAlbumDate">
+                <p>First album date</p>
+                <div class="range">
+                    <div class="range-slider">
+                        <span class="range-selected"></span>
+                    </div>
+                    <div class="range-input">
+                        <input type="range" class="min" min="1970" max="2020" value="1970" step="1" id="minfAdRange">
+                        <input type="range" class="max" min="1970" max="2020" value="2020" step="1" id="maxfAdRange">
+                    </div>
+                    <div class="range-price">
+                        <label for="minfAd">Min</label>
+                        <input type="number" name="minfAd" id="minfAd" value="1970">
+                        <label for="maxfAd">Max</label>
+                        <input type="number" name="maxfAd" id="maxfAd" value="2020">
+                    </div>
+                </div>
+            </div>
+            <div id="creationDate">
+                <p>Date de création</p>
+                <div class="range">
+                    <div class="range-slider">
+                        <span class="range-selected"></span>
+                    </div>
+                    <div class="range-input">
+                        <input type="range" class="min" min="1950" max="2025" value="1950" step="1" id="minCDRange">
+                        <input type="range" class="max" min="1950" max="2025" value="2025" step="1" id="maxCDRange">
+                    </div>
+                    <div class="range-price">
+                        <label for="minCD">Min</label>
+                        <input type="number" name="minCD" id="minCD" value="1950">
+                        <label for="maxCD">Max</label>
+                        <input type="number" name="maxCD" id="maxCD" value="2025">
+                    </div>
+                </div>
+            </div>
+            <div id="members-filter" style="display: flex; align-items: center; gap: 0.5em;flex-direction: column;">
+                <label style="margin-right: 0.5em;">Members:</label>
+                <div>
+                    <label><input type="checkbox" name="members" value="1"> 1</label>
+                    <label><input type="checkbox" name="members" value="2"> 2</label>
+                    <label><input type="checkbox" name="members" value="3"> 3</label>
+                    <label><input type="checkbox" name="members" value="4"> 4</label>
+                    <label><input type="checkbox" name="members" value="5"> 5</label>
+                    <label><input type="checkbox" name="members" value="6"> 6</label>
+                    <label><input type="checkbox" name="members" value="7"> 7</label>
+                </div>
+            </div>
+            <label class="location">
+                <input type="text" name="Location" placeholder="Enter Location">
+                <input type="submit">
+            </label>
+
+        </form>
+       
     </nav>
     {{ block "content" .}} {{end}}
     {{ block "footer" .}} {{end}}
