@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 type Coordinates struct {
@@ -60,6 +57,7 @@ func Geocoding(location string) (Coordinates, error) {
 	return results, nil
 }
 
+/*
 func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 	const R = 6371 // Rayon terrestre en km
 	dLat := (lat2 - lat1) * math.Pi / 180
@@ -155,3 +153,4 @@ func GenerateMapUrl(locations []Coordinates) (string, error) {
 }
 
 //90bfb2c4beb645718fdc2c925fe235a1
+*/
