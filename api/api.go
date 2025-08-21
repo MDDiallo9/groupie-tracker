@@ -51,7 +51,7 @@ type RelationData struct {
 
 type Filter struct {
 	CreationDate   []int
-	FirstAlbumDate int
+	FirstAlbumDate []int
 	Members        map[int]bool
 	Location       string
 }
@@ -113,6 +113,7 @@ func GetLocations(artist Artist) []string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
+
 	return FormatLocations(locations.Locations)
 }
 
@@ -192,18 +193,18 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		if filter.FirstAlbumDate != 0 {
-			if firstAlbumDate <= filter.FirstAlbumDate {
+		if len(filter.FirstAlbumDate) == 2  {
+			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
 		}
 
 		// Members filter
-		if len(filter.Members) > 0 {
-			if !filter.Members[len(artist.Members)] {
-				match = false
-			}
-		}
+		if anyMemberSelected(filter.Members) {
+            if !filter.Members[len(artist.Members)] {
+                match = false
+            }
+        }
 
 		// Locations filter
 		if len(search) > 2 {
@@ -223,7 +224,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 			results = append(results, artist)
 		}
 	}
-
 	return results
 }
 
@@ -247,21 +247,31 @@ func normalize(s string) string {
 }
 
 func capitalize(word string) string {
-	if len(word) == 0 {
-		return word
-	}
-	return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+
+    if len(word) == 0 {
+        return word
+    }
+    return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
 }
 
 // Pour formatter "california-usa" en "California, USA"
 func FormatLocations(locations []string) []string {
-	var formatted []string
-	for _, loc := range locations {
-		parts := strings.Split(loc, "-")
-		for i, part := range parts {
-			parts[i] = capitalize(part)
-		}
-		formatted = append(formatted, strings.Join(parts, ", "))
-	}
-	return formatted
+    var formatted []string
+    for _, loc := range locations {
+        parts := strings.Split(loc, "-")
+        for i, part := range parts {
+            parts[i] = capitalize(part)
+        }
+        formatted = append(formatted, strings.Join(parts, ", "))
+    }
+    return formatted
+}
+
+func anyMemberSelected(members map[int]bool) bool {
+    for _, v := range members {
+        if v {
+            return true
+        }
+    }
+    return false
 }

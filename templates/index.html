@@ -1,0 +1,20 @@
+{{ define "content" }}
+
+{{ range .Playlist20}}
+    <a class="card" href="artist?id={{.ID}}">
+
+
+      <div class="artistImage">
+        <img src="{{.Image}}" alt="">
+
+      </div>
+
+
+      <p class="artistName">{{.Name}}</p>
+
+      <p class="creationDate">{{.CreationDate}}</p>
+
+    </a>
+    {{end}}
+
+{{ end }}
