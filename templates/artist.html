@@ -8,13 +8,13 @@
             <div>
                 <div class="artist-profile-name">{{ .Name }}</div>
                 <div class="artist-profile-meta">
-                    <span>Debut: {{ .FirstAlbum }}</span>
-                    <span>Formed: {{ .CreationDate }}</span>
-                    <span>Members: {{ len .Members }}</span>
+                    <span>Date de sortie du premier album : {{ .FirstAlbum }}</span>
+                    <span>Date de création du Groupe: {{ .CreationDate }}</span>
+                    <span>Taille du groupe : {{ len .Members }}</span>
                 </div>
             </div>
             <div class="artist-profile-section">
-                <h2>Members</h2>
+                <h2>Membres</h2>
                 <div class="artist-members-list">
                     {{ range .Members }}
                     <span>{{ . }}</span>
@@ -24,7 +24,7 @@
             <div class="artist-profile-section">
                 <details>
                     <summary class="dropdown-summary">
-                        Concert Locations <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
+                        Localisation des concerts <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
                     </summary>
                     <div class="artist-locations-list">
                         {{ range .Locations }}
@@ -36,7 +36,7 @@
             <div class="artist-profile-section">
                 <details>
                     <summary class="dropdown-summary">
-                        Concert Dates <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
+                        Dates des concerts <svg class="icon" fill="#ff6f61" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 224C492.9 224 504.6 231.8 509.6 243.8C514.6 255.8 511.8 269.5 502.7 278.7L342.7 438.7C330.2 451.2 309.9 451.2 297.4 438.7L137.4 278.7C128.2 269.5 125.5 255.8 130.5 243.8C135.5 231.8 147.1 224 160 224L480 224z"/></svg>
                     </summary>
                     <div class="artist-dates-list">
                         {{ range .ConcertDates }}
@@ -49,10 +49,36 @@
                     <p>{{.}}</p>
                 {{end}}
             </p> -->
-            <div>
-                <img src="{{.MapURL}}" alt="Error when loading map">
+
+            <div id="map">
             </div>
         </div>
     </div>
 </div>
+<script>
+            
+            locationiq.key = 'pk.09b4dfb8ed80cba511a849aa0372e330';
+            //Define the map and configure the map's theme
+            var map = new maplibregl.Map({
+                container: 'map',
+                style: locationiq.getLayer("Streets"),
+                zoom: 0.1,
+            });
+            const tabCoords = JSON.parse('{{ .CoordsJSON }}');
+            console.log("Coordonnées injectées :", tabCoords);
+            tabCoords.forEach(coord => {
+                const el = document.createElement('div');
+                el.className = 'marker';
+                el.style.backgroundImage = 'url(https://tiles.locationiq.com/static/images/marker50px.png)';
+                el.style.width = '50px';
+                el.style.height = '50px';
+
+                new maplibregl.Marker(el)
+                    .setLngLat([parseFloat(coord.lon), parseFloat(coord.lat)])
+                    .setPopup(new maplibregl.Popup().setText(coord.name))
+                    .addTo(map);
+            });
+            console.log("Coordonnées injectées :", tabCoords);
+
+        </script>
 {{ end }}

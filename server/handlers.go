@@ -1,13 +1,16 @@
 package server
 
 import (
+	"encoding/json"
+	"groupie-tracker/api"
 	"fmt"
-	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 )
 
 // Structure pour les suggestions de la barre de recherche.
@@ -16,78 +19,35 @@ type Suggestion struct {
 	Label string // Ce qui sera envoyé à côté dans la liste.
 }
 
-/*
-// Function pour afficher la page d'acueil.
-func home(w http.ResponseWriter, r *http.Request) {
-
-	// Tentative pour gérer la barre de suggestion.
-	data := struct {
-		Suggestions []Suggestion
-		Artists     []api.Artist
-	}{
-		Suggestions: SuggestionsGeneration(),
-		Artists:     api.GetArtists(),
-	}
-
-	tmpl := template.Must(template.ParseFiles("templates/home.html"))
-	tmpl.Execute(w, data)
-
-	for i := range artists {
-
-		// Charge les dates des concerts.
-		artists[i].ConcertDates = api.GetConcertDates(artists[i])
-
-		// artists[i].Locations = api.GetLocations(artists[i])
-		// Boucle pour charger les localisations, avec mise en forme pour l'affichage.
-		locations := api.GetLocations(artists[i])
-		for j := range locations {
-			locations[j] = strings.ReplaceAll(locations[j], "_", " ")
-			locations[j] = strings.ReplaceAll(locations[j], "-", " - ")
-		}
-		artists[i].Locations = locations
-
-		//#MARK: A revoir, ça ne marche pas
-		// artists[i].Relations = api.GetRelations(artists[i])
-		// Boucle pour charger les relations, avec mise en forme pour l'affichage.
-		relations := api.GetRelations(artists[i])
-
-		for date, locations := range relations {
-			for j, value := range locations {
-				value = strings.ReplaceAll(value, "_", " ")
-				value = strings.ReplaceAll(value, "-", " - ")
-				locations[j] = value
-			}
-			relations[date] = locations
-		}
-		artists[i].Relations = relations
-	}
-}*/
+type Suggestion struct {
+	Texte string // ce qui est envoyé en recherche.
+	Label string // Ce qui sera envoyé à côté dans la liste.
+}
 
 func home(w http.ResponseWriter, r *http.Request) {
 	var filter api.Filter
+	filter.CreationDate = []int{1950,2025}
+	filter.FirstAlbumDate = []int{1970,2020}
 	if r.Method == "POST" {
 		r.ParseForm()
-		fad, _ := strconv.Atoi(r.Form["FirstAlbumDate"][0])
-		cdMin, _ := strconv.Atoi(r.Form["creationDate"][0])
-		cdMax := 2025
+		// First Album Date
+		minFAD, _ := strconv.Atoi(r.Form.Get("minfAd"))
+		maxFAD, _ := strconv.Atoi(r.Form.Get("maxfAd"))
+		// Creation Date
+		minCD, _ := strconv.Atoi(r.Form.Get("minCD"))
+		maxCD, _ := strconv.Atoi(r.Form.Get("maxCD"))
 		members := map[int]bool{
-			1: false,
-			2: false,
-			3: false,
-			4: false,
-			5: false,
-			6: false,
-			7: false,
+			1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false,
 		}
 		for _, num := range r.Form["members"] {
 			n, _ := strconv.Atoi(num)
 			members[n] = true
 		}
 		filter = api.Filter{
-			Location:       r.Form["Location"][0],
-			FirstAlbumDate: fad,
+			Location:       r.Form.Get("Location"),
+			FirstAlbumDate: []int{minFAD,maxFAD}, // or use both min/max if your filter supports a range
 			Members:        members,
-			CreationDate:   []int{cdMin, cdMax},
+			CreationDate:   []int{minCD, maxCD},
 		} // Besoin de recharger home avec le api.FilterBy(artists,filter)
 	}
 
@@ -102,11 +62,12 @@ func home(w http.ResponseWriter, r *http.Request) {
 	/* artists := api.GetArtists() */
 
 	if isFilterFilled(filter) {
-		artists = api.FilterBy(artists, filter)
+		data.Artists = api.FilterBy(artists, filter)
+		log.Print(filter)
+
 	}
 
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
-
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -122,25 +83,29 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func Artist(w http.ResponseWriter, r *http.Request) {
 	idstring := r.URL.Query().Get("id")
-	id, _ := strconv.Atoi(idstring)
+	id, err := strconv.Atoi(idstring)
+	if err != nil || id < 1 || id > len(artists) {
+		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
+		return
+	}
 
 	artist := artists[id-1]
-	var coords []api.Coordinates
-	for _, location := range api.GetLocations(artist) {
-		coord, err := api.Geocoding(location)
-		if err == nil {
-			coords = append(coords, coord)
-		}
-	}
-	mapURL, err := api.GenerateMapUrl(coords)
-	if err != nil {
-		fmt.Println("error when generating map url :", err)
-	}
-	artist.MapURL = mapURL
 
 	artist.Locations = api.GetLocations(artist)
 	artist.ConcertDates = api.GetConcertDates(artist)
 	artist.Relations = api.GetRelations(artist)
+
+	artist.TabCoords = GenerateCoordinates(artist)
+
+	coordsJSON, err := json.Marshal(artist.TabCoords)
+	if err != nil {
+		log.Print("Erreur JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	artist.CoordsJSON = template.JS(coordsJSON)
+
+
 
 	ts, err := template.ParseFiles("./templates/artist.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
@@ -156,8 +121,29 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func search(w http.ResponseWriter, r *http.Request) {
+func IndexPage(w http.ResponseWriter, r *http.Request){
+	data := struct {
+		Playlist20 []api.Artist
+	}{
+		
+		Playlist20 : api.FilterBy(artists, api.Filter{CreationDate: []int{2000,2010}})[8:],
+	}
 
+	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base.html", data)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func search(w http.ResponseWriter, r *http.Request) {
 	var query string
 
 	// Vérification que c'est une méthode POST
@@ -244,14 +230,15 @@ func search(w http.ResponseWriter, r *http.Request) {
 	// Exécution du template
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
-		log.Print(err.Error())
+		log.Print("Erreur template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+
 	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print("Erreur exécution template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
@@ -268,13 +255,16 @@ func SuggestionsGeneration() []Suggestion {
 		suggestions = append(suggestions,
 			Suggestion{
 				Texte: artist.Name,
-				Label: "Groupe de musique"},
+				Label: "Groupe de musique",
+			},
 			Suggestion{
 				Texte: strconv.Itoa(artist.CreationDate),
-				Label: "Date de Fondation du Groupe : " + artist.Name},
+				Label: "Date de Fondation du Groupe : " + artist.Name,
+			},
 			Suggestion{
 				Texte: artist.FirstAlbum,
-				Label: "Date de sortie du premier Album du groupe " + artist.Name},
+				Label: "Date de sortie du premier Album du groupe " + artist.Name,
+			},
 		)
 
 		// Suggestion pour : Artistes composant un groupe de musique.
@@ -302,10 +292,10 @@ func isFilterFilled(f api.Filter) bool {
 			return true
 		}
 	}
-	if f.Location != "" || f.FirstAlbumDate != 0 {
+	if f.Location != "" || (f.FirstAlbumDate[0] != 1970 || f.FirstAlbumDate[1] != 2020)  {
 		return true
 	}
-	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 0 || f.CreationDate[1] != 2025) {
+	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 1950 || f.CreationDate[1] != 2025) {
 		return true
 	}
 	return false

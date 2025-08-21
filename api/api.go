@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
-  "strconv"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +26,8 @@ type Artist struct {
 	ConcertDates     []string            // Liste de dates
 	RelationsLink    string              `json:"relations"` // sous forme d'URL
 	Relations        map[string][]string // Assemble les localisations et dates de concerts.
-  MapURL           string
+	TabCoords        []Coordinates       //Stock les coordonnées
+	CoordsJSON       template.JS
 }
 
 // Structure du json locations
@@ -49,7 +51,7 @@ type RelationData struct {
 
 type Filter struct {
 	CreationDate   []int
-	FirstAlbumDate int
+	FirstAlbumDate []int
 	Members        map[int]bool
 	Location       string
 }
@@ -111,7 +113,8 @@ func GetLocations(artist Artist) []string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-  return FormatLocations(locations.Locations)
+
+	return FormatLocations(locations.Locations)
 }
 
 func GetConcertDates(artist Artist) []string {
@@ -143,7 +146,6 @@ func GetConcertDates(artist Artist) []string {
 }
 
 func GetRelations(artist Artist) map[string][]string {
-
 
 	// Création d'une variable relations de type RelationData pour pouvoir appeler la structure dans la fonction.
 	var relations RelationData
@@ -191,18 +193,18 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		if filter.FirstAlbumDate != 0 {
-			if firstAlbumDate <= filter.FirstAlbumDate {
+		if len(filter.FirstAlbumDate) == 2  {
+			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
 		}
 
 		// Members filter
-		if len(filter.Members) > 0 {
-			if !filter.Members[len(artist.Members)] {
-				match = false
-			}
-		}
+		if anyMemberSelected(filter.Members) {
+            if !filter.Members[len(artist.Members)] {
+                match = false
+            }
+        }
 
 		// Locations filter
 		if len(search) > 2 {
@@ -222,9 +224,9 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 			results = append(results, artist)
 		}
 	}
-
 	return results
 }
+
 // Vérifier si des artistes sont déjà présents dans la slice artists pour éviter les doublons
 func containsArtist(results []Artist, id int) bool {
 	for _, a := range results {
@@ -245,6 +247,7 @@ func normalize(s string) string {
 }
 
 func capitalize(word string) string {
+
     if len(word) == 0 {
         return word
     }
@@ -262,4 +265,13 @@ func FormatLocations(locations []string) []string {
         formatted = append(formatted, strings.Join(parts, ", "))
     }
     return formatted
+}
+
+func anyMemberSelected(members map[int]bool) bool {
+    for _, v := range members {
+        if v {
+            return true
+        }
+    }
+    return false
 }
