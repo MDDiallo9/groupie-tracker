@@ -1,6 +1,8 @@
 package server
 
 import (
+	"encoding/json"
+	"groupie-tracker/api"
 	"fmt"
 	"html/template"
 	"log"
@@ -12,6 +14,11 @@ import (
 )
 
 // Structure pour les suggestions de la barre de recherche.
+type Suggestion struct {
+	Texte string // ce qui est envoyé en recherche.
+	Label string // Ce qui sera envoyé à côté dans la liste.
+}
+
 type Suggestion struct {
 	Texte string // ce qui est envoyé en recherche.
 	Label string // Ce qui sera envoyé à côté dans la liste.
@@ -76,25 +83,29 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func Artist(w http.ResponseWriter, r *http.Request) {
 	idstring := r.URL.Query().Get("id")
-	id, _ := strconv.Atoi(idstring)
+	id, err := strconv.Atoi(idstring)
+	if err != nil || id < 1 || id > len(artists) {
+		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
+		return
+	}
 
 	artist := artists[id-1]
-	var coords []api.Coordinates
-	for _, location := range api.GetLocations(artist) {
-		coord, err := api.Geocoding(location)
-		if err == nil {
-			coords = append(coords, coord)
-		}
-	}
-	mapURL, err := api.GenerateMapUrl(coords)
-	if err != nil {
-		fmt.Println("error when generating map url :", err)
-	}
-	artist.MapURL = mapURL
 
 	artist.Locations = api.GetLocations(artist)
 	artist.ConcertDates = api.GetConcertDates(artist)
 	artist.Relations = api.GetRelations(artist)
+
+	artist.TabCoords = GenerateCoordinates(artist)
+
+	coordsJSON, err := json.Marshal(artist.TabCoords)
+	if err != nil {
+		log.Print("Erreur JSON:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	artist.CoordsJSON = template.JS(coordsJSON)
+
+
 
 	ts, err := template.ParseFiles("./templates/artist.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
@@ -206,19 +217,21 @@ func search(w http.ResponseWriter, r *http.Request) {
 	// Exécution du template
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
-		log.Print(err.Error())
+		log.Print("Erreur template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
+
 	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Print(err.Error())
+		log.Print("Erreur exécution template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 
 func SuggestionsGeneration() []Suggestion {
+
 	var suggestions []Suggestion
 
 	for _, artist := range api.GetArtists() {

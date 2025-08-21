@@ -3,11 +3,12 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
-  "strconv"
+	"strconv"
 	"strings"
 )
 
@@ -25,7 +26,8 @@ type Artist struct {
 	ConcertDates     []string            // Liste de dates
 	RelationsLink    string              `json:"relations"` // sous forme d'URL
 	Relations        map[string][]string // Assemble les localisations et dates de concerts.
-  MapURL           string
+	TabCoords        []Coordinates       //Stock les coordonnées
+	CoordsJSON       template.JS
 }
 
 // Structure du json locations
@@ -111,7 +113,8 @@ func GetLocations(artist Artist) []string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-  return FormatLocations(locations.Locations)
+
+	return FormatLocations(locations.Locations)
 }
 
 func GetConcertDates(artist Artist) []string {
@@ -143,7 +146,6 @@ func GetConcertDates(artist Artist) []string {
 }
 
 func GetRelations(artist Artist) map[string][]string {
-
 
 	// Création d'une variable relations de type RelationData pour pouvoir appeler la structure dans la fonction.
 	var relations RelationData
@@ -179,7 +181,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 	search := normalize(filter.Location)
 
 	for _, artist := range artists {
-
 		artist.Locations = GetLocations(artist)
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:])
 		match := true
@@ -192,7 +193,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-
 		if len(filter.FirstAlbumDate) == 2  {
 			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
@@ -211,7 +211,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 			found := false
 			for _, location := range artist.Locations {
 				if strings.Contains(normalize(location), search) {
-					log.Print("loc found")
 					found = true
 					break
 				}
@@ -225,11 +224,9 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 			results = append(results, artist)
 		}
 	}
-
-	log.Print(results)
-
 	return results
 }
+
 // Vérifier si des artistes sont déjà présents dans la slice artists pour éviter les doublons
 func containsArtist(results []Artist, id int) bool {
 	for _, a := range results {
@@ -250,6 +247,7 @@ func normalize(s string) string {
 }
 
 func capitalize(word string) string {
+
     if len(word) == 0 {
         return word
     }
