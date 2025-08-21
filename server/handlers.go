@@ -9,15 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"groupie-tracker/api" // Import pour récupérer les structures et intérargir avec les fonctions.
 )
-
-// Structure pour les suggestions de la barre de recherche.
-type Suggestion struct {
-	Texte string // ce qui est envoyé en recherche.
-	Label string // Ce qui sera envoyé à côté dans la liste.
-}
 
 type Suggestion struct {
 	Texte string // ce qui est envoyé en recherche.
