@@ -6,12 +6,12 @@
     <form method="POST" action="/search">
 
       <input type="text" name="search" list="suggestions" placeholder="Rechercher un groupe, un artiste, une date..." />
-      <datalist id="suggestions">
+      <div class="suggest"><datalist id="suggestions">
         <!-- Partie dédiée aux suggestions quant l'utilisateur tape dans la barre de recherche -->
         {{range .Suggestions}}
         <option value="{{.Texte}}">{{.Label}}</option>
         {{end}}
-      </datalist>
+      </datalist></div>
       <input type="submit" value="Search">
     </form>
 

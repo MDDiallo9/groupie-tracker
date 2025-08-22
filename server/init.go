@@ -7,14 +7,14 @@ import (
 
 var artists []api.Artist
 
-func InitArtists() {
+/* func InitArtists() {
 	artists = api.GetArtists()
 	for _, artist := range artists {
 		artist.Locations = api.GetLocations(artist)
 		artist.ConcertDates = api.GetConcertDates(artist)
 		artist.Relations = api.GetRelations(artist)
 	}
-}
+} */
 
 func GenerateCoordinates(artist api.Artist) []api.Coordinates {
 	var tabcoords []api.Coordinates
