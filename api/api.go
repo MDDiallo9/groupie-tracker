@@ -194,7 +194,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 
 		// Members filter
 		if anyMemberSelected(filter.Members) {
-			log.Printf("%v a %v membres",artist.Name,len(artist.Members))
 			if !filter.Members[len(artist.Members)] {
 				match = false
 			}
@@ -253,7 +252,12 @@ func FormatLocations(locations []string) []string {
 	for _, loc := range locations {
 		parts := strings.Split(loc, "-")
 		for i, part := range parts {
-			parts[i] = capitalize(part)
+			if strings.Contains(part, "_") {
+				part1, part2, _ := strings.Cut(part, "_")
+				parts[i] = capitalize(part1) + " " + capitalize(part2)
+			} else {
+				parts[i] = capitalize(part)
+			}
 		}
 		formatted = append(formatted, strings.Join(parts, ", "))
 	}

@@ -21,7 +21,6 @@ func Routes(data *AppData) *http.ServeMux {
 	// mux.Handle permet de charger le CSS sur la page html.
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
-
  /*  InitArtists() */
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
         home(w, r, data)
@@ -35,5 +34,6 @@ func Routes(data *AppData) *http.ServeMux {
     mux.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
         IndexPage(w, r)
     })
+  
 	return mux
 }
