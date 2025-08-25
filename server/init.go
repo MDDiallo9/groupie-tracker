@@ -7,14 +7,15 @@ import (
 
 var artists []api.Artist
 
-/* func InitArtists() {
-	artists = api.GetArtists()
-	for _, artist := range artists {
-		artist.Locations = api.GetLocations(artist)
-		artist.ConcertDates = api.GetConcertDates(artist)
-		artist.Relations = api.GetRelations(artist)
-	}
-} */
+func InitArtists() []api.Artist {
+    artists = api.GetArtists()
+    for i := range artists {
+        /* artists[i].Locations = api.GetLocations(artists[i])
+        artists[i].ConcertDates = api.GetConcertDates(artists[i]) */
+        artists[i].Relations = api.GetRelations(artists[i])
+    }
+    return artists
+}
 
 func GenerateCoordinates(artist api.Artist) []api.Coordinates {
 	var tabcoords []api.Coordinates

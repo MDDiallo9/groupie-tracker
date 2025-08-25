@@ -1,14 +1,14 @@
 package server
 
 import (
-	"encoding/json"
-	"groupie-tracker/api"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"groupie-tracker/api"
 )
 
 type Suggestion struct {
@@ -16,10 +16,10 @@ type Suggestion struct {
 	Label string // Ce qui sera envoyé à côté dans la liste.
 }
 
-func home(w http.ResponseWriter, r *http.Request) {
+func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	var filter api.Filter
-	filter.CreationDate = []int{1950,2025}
-	filter.FirstAlbumDate = []int{1970,2020}
+	filter.CreationDate = []int{1950, 2025}
+	filter.FirstAlbumDate = []int{1950, 2020}
 	if r.Method == "POST" {
 		r.ParseForm()
 		// First Album Date
@@ -37,7 +37,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 		}
 		filter = api.Filter{
 			Location:       r.Form.Get("Location"),
-			FirstAlbumDate: []int{minFAD,maxFAD}, // or use both min/max if your filter supports a range
+			FirstAlbumDate: []int{minFAD, maxFAD}, // or use both min/max if your filter supports a range
 			Members:        members,
 			CreationDate:   []int{minCD, maxCD},
 		} // Besoin de recharger home avec le api.FilterBy(artists,filter)
@@ -48,15 +48,11 @@ func home(w http.ResponseWriter, r *http.Request) {
 		Artists     []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(),
-		Artists:     api.GetArtists(),
+		Artists:     init.Artists,
 	}
 
-	/* artists := api.GetArtists() */
-
 	if isFilterFilled(filter) {
-		data.Artists = api.FilterBy(artists, filter)
-		log.Print(filter)
-
+		data.Artists = api.FilterBy(init.Artists, filter)
 	}
 
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
@@ -73,21 +69,17 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Artist(w http.ResponseWriter, r *http.Request) {
+func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	idstring := r.URL.Query().Get("id")
 	id, err := strconv.Atoi(idstring)
-	if err != nil || id < 1 || id > len(artists) {
+	/* if err != nil || id < 1 || id > len(artists) {
 		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
 		return
-	}
+	} */
 
-	artist := artists[id-1]
+	artist := init.Artists[id-1]
 
-	artist.Locations = api.GetLocations(artist)
-	artist.ConcertDates = api.GetConcertDates(artist)
-	artist.Relations = api.GetRelations(artist)
-
-	artist.TabCoords = GenerateCoordinates(artist)
+	/* artist.TabCoords = GenerateCoordinates(artist)
 
 	coordsJSON, err := json.Marshal(artist.TabCoords)
 	if err != nil {
@@ -95,9 +87,7 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	artist.CoordsJSON = template.JS(coordsJSON)
-
-
+	artist.CoordsJSON = template.JS(coordsJSON) */
 
 	ts, err := template.ParseFiles("./templates/artist.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
@@ -113,12 +103,11 @@ func Artist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func IndexPage(w http.ResponseWriter, r *http.Request){
+func IndexPage(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Playlist20 []api.Artist
 	}{
-		
-		Playlist20 : api.FilterBy(artists, api.Filter{CreationDate: []int{2000,2010}})[8:],
+		Playlist20: api.FilterBy(artists, api.Filter{CreationDate: []int{2000, 2010}})[8:],
 	}
 
 	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
@@ -227,7 +216,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Print("Erreur exécution template:", err)
@@ -236,7 +224,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 }
 
 func SuggestionsGeneration() []Suggestion {
-
 	var suggestions []Suggestion
 
 	for _, artist := range api.GetArtists() {
@@ -284,7 +271,7 @@ func isFilterFilled(f api.Filter) bool {
 			return true
 		}
 	}
-	if f.Location != "" || (f.FirstAlbumDate[0] != 1970 || f.FirstAlbumDate[1] != 2020)  {
+	if f.Location != "" || (f.FirstAlbumDate[0] != 1950 || f.FirstAlbumDate[1] != 2020) {
 		return true
 	}
 	if len(f.CreationDate) == 2 && (f.CreationDate[0] != 1950 || f.CreationDate[1] != 2025) {

@@ -23,11 +23,16 @@ func main() {
 	// flg.Parse permet d'utiliser les options définies précedement, et de pouvoir les gérer dans l'invite de commande du terminal.
 	flag.Parse()
 
+
+	data := &server.AppData{
+		Artists: server.InitArtists(),
+	}
+
 	// Création du serveur GO.
 	srv := &http.Server{
 		Addr:     *port,           // définition du port à utiliser.
 		ErrorLog: errorLog,        // Loggage des erreurs.
-		Handler:  server.Routes(), // Reçois les requêtes pour les diriger vers le bon fichier.
+		Handler:  server.Routes(data),
 	}
 
 	// Récupère les informations de infoLog, puis inscrit le texte suivit du numéro du port utilisé
