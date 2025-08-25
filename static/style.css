@@ -136,11 +136,14 @@ main {
   align-content: flex-start;
 /*   overflow-y: scroll; Pour enlever la barre de défilement en trop */ 
   flex-wrap: wrap;
-  height: 100vh;
-  width: 100%;
+  /* height: 100vh; Pour enlever la barre de défilement en trop */
+  /* width: 100%; Pour enlever la barre de défilement en trop */
   gap: 20px;
-  margin: 20px;
+  /* margin: 20px; Pour enlever la barre de défilement en trop */
   border-radius: 15px;
+  margin: 20px auto;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 button:hover,
