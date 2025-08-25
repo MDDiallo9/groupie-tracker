@@ -7,9 +7,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Structure du json artists et réunissant toutes les composantes des informations des autres fichiers json.
@@ -26,7 +26,7 @@ type Artist struct {
 	ConcertDates     []string            // Liste de dates
 	RelationsLink    string              `json:"relations"` // sous forme d'URL
 	Relations        map[string][]string // Assemble les localisations et dates de concerts.
-	TabCoords        []Coordinates       //Stock les coordonnées
+	TabCoords        []Coordinates       // Stock les coordonnées
 	CoordsJSON       template.JS
 }
 
@@ -57,17 +57,14 @@ type Filter struct {
 }
 
 func GetArtists() []Artist {
-
 	// Création d'une variable artists de type []Artist pour pouvoir appeler la structure dans la fonction.
 	var artists []Artist
 
 	// Envoi une requête GET pour obtenir les informations du fichier json.
 	link := "https://groupietrackers.herokuapp.com/api/artists"
 	response, err := http.Get(link)
-
 	if err != nil {
 		fmt.Print(err.Error())
-		os.Exit(1)
 	}
 	defer response.Body.Close() // Sert à éviter de garder la connexion avec l'API ouvert après usage !
 
@@ -87,7 +84,6 @@ func GetArtists() []Artist {
 }
 
 func GetLocations(artist Artist) []string {
-
 	// Création d'une variable locations de type LocationData pour pouvoir appeler la structure dans la fonction.
 	var locations LocationData
 
@@ -118,7 +114,6 @@ func GetLocations(artist Artist) []string {
 }
 
 func GetConcertDates(artist Artist) []string {
-
 	// Création d'une variable concertDates de type ConcertDatesData pour pouvoir appeler la structure dans la fonction.
 	var concertDates ConcertDatesData
 
@@ -146,14 +141,12 @@ func GetConcertDates(artist Artist) []string {
 }
 
 func GetRelations(artist Artist) map[string][]string {
-
 	// Création d'une variable relations de type RelationData pour pouvoir appeler la structure dans la fonction.
 	var relations RelationData
 
 	// Envoi une requête GET pour obtenir les informations du fichier json.
 	// L'URL est obtenue à partir de la Structure artist.RelationsLink.
 	response, err := http.Get(artist.RelationsLink)
-
 	if err != nil {
 		fmt.Print(err.Error())
 		fmt.Printf("%v", err)
@@ -193,7 +186,7 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		if len(filter.FirstAlbumDate) == 2  {
+		if len(filter.FirstAlbumDate) == 2 {
 			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
@@ -201,10 +194,11 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 
 		// Members filter
 		if anyMemberSelected(filter.Members) {
-            if !filter.Members[len(artist.Members)] {
-                match = false
-            }
-        }
+			log.Printf("%v a %v membres",artist.Name,len(artist.Members))
+			if !filter.Members[len(artist.Members)] {
+				match = false
+			}
+		}
 
 		// Locations filter
 		if len(search) > 2 {
@@ -247,31 +241,45 @@ func normalize(s string) string {
 }
 
 func capitalize(word string) string {
-
-    if len(word) == 0 {
-        return word
-    }
-    return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+	if len(word) == 0 {
+		return word
+	}
+	return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
 }
 
 // Pour formatter "california-usa" en "California, USA"
 func FormatLocations(locations []string) []string {
-    var formatted []string
-    for _, loc := range locations {
-        parts := strings.Split(loc, "-")
-        for i, part := range parts {
-            parts[i] = capitalize(part)
-        }
-        formatted = append(formatted, strings.Join(parts, ", "))
-    }
-    return formatted
+	var formatted []string
+	for _, loc := range locations {
+		parts := strings.Split(loc, "-")
+		for i, part := range parts {
+			parts[i] = capitalize(part)
+		}
+		formatted = append(formatted, strings.Join(parts, ", "))
+	}
+	return formatted
 }
 
 func anyMemberSelected(members map[int]bool) bool {
-    for _, v := range members {
-        if v {
-            return true
-        }
-    }
-    return false
+	for _, v := range members {
+		if v {
+			return true
+		}
+	}
+	return false
+}
+
+// Example: Fetch locations for all artists concurrently
+func FetchAllLocations(artists []Artist) [][]string {
+	results := make([][]string, len(artists))
+	var wg sync.WaitGroup
+	for i, artist := range artists {
+		wg.Add(1)
+		go func(i int, artist Artist) {
+			defer wg.Done()
+			results[i] = GetLocations(artist)
+		}(i, artist)
+	}
+	wg.Wait()
+	return results
 }
