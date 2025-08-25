@@ -1,11 +1,16 @@
 package server
 
 import (
+	"groupie-tracker/api"
 	"net/http"
 )
 
+type AppData struct {
+    Artists []api.Artist
+}
+
 // ServeMux permet de gérer plusieurs pages dans le même temps. ex /acceuil, /artistes, /localisations,...
-func Routes() *http.ServeMux {
+func Routes(data *AppData) *http.ServeMux {
 
 	// http.NewServeMux sert de routeur pour rediriger les requêtes HTTP vers les bons Handlers.
 	mux := http.NewServeMux()
@@ -17,11 +22,18 @@ func Routes() *http.ServeMux {
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
 
-  InitArtists()
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/artist", Artist)
-	mux.HandleFunc("/search", search)
-	mux.HandleFunc("/index",IndexPage)
-
+ /*  InitArtists() */
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        home(w, r, data)
+    })
+    mux.HandleFunc("/artist", func(w http.ResponseWriter, r *http.Request) {
+        Artist(w, r, data)
+    })
+    mux.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+        search(w, r)
+    })
+    mux.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
+        IndexPage(w, r)
+    })
 	return mux
 }
