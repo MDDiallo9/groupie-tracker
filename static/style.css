@@ -134,7 +134,7 @@ main {
   display: flex;
   justify-content: center;
   align-content: flex-start;
-  overflow-y: scroll;
+/*   overflow-y: scroll; Pour enlever la barre de défilement en trop */ 
   flex-wrap: wrap;
   height: 100vh;
   width: 100%;
