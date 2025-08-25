@@ -15,15 +15,16 @@
         <a href="home.html">
             <h2>Groupie Tracker</h2>
         </a>
-        <div id="logo">Groupie Tracker</div>
 
         <form action="/" method="post" id="filters">
             <div id="firstAlbumDate">
                 <p>First album date</p>
                 <div class="range">
                     <div class="range-slider">
-                        <span class="range-selected"></span>
-                    </div>
+                        <!-- Mise en commentaire de span pour enlever la partie bleue du filtre,
+                        qui faisait tâche car non dynamique. -->
+<!--                         <span class="range-selected"></span>
+ -->                    </div>
                     <div class="range-input">
                         <input type="range" class="min" min="1970" max="2020" value="1970" step="1" id="minfAdRange">
                         <input type="range" class="max" min="1970" max="2020" value="2020" step="1" id="maxfAdRange">
@@ -40,8 +41,10 @@
                 <p>Date de création</p>
                 <div class="range">
                     <div class="range-slider">
-                        <span class="range-selected"></span>
-                    </div>
+                        <!-- Mise en commentaire de span pour enlever la partie bleue du filtre,
+                        qui faisait tâche car non dynamique. -->
+<!--                         <span class="range-selected"></span>
+ -->                    </div>
                     <div class="range-input">
                         <input type="range" class="min" min="1950" max="2025" value="1950" step="1" id="minCDRange">
                         <input type="range" class="max" min="1950" max="2025" value="2025" step="1" id="maxCDRange">
@@ -64,6 +67,7 @@
                     <label><input type="checkbox" name="members" value="5"> 5</label>
                     <label><input type="checkbox" name="members" value="6"> 6</label>
                     <label><input type="checkbox" name="members" value="7"> 7</label>
+                    <label><input type="checkbox" name="members" value="8"> 8</label>
                 </div>
             </div>
             <label class="location">

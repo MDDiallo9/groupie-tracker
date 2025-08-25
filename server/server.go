@@ -17,7 +17,7 @@ func Routes() *http.ServeMux {
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
 
-  InitArtists()
+  // InitArtists()
 	mux.HandleFunc("/", home)
 	mux.HandleFunc("/artist", Artist)
 	mux.HandleFunc("/search", search)
