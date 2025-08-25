@@ -193,7 +193,7 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 		}
 
 		// FirstAlbum filter
-		if len(filter.FirstAlbumDate) == 2  {
+		if len(filter.FirstAlbumDate) == 2 {
 			if firstAlbumDate < filter.FirstAlbumDate[0] || firstAlbumDate > filter.FirstAlbumDate[1] {
 				match = false
 			}
@@ -201,10 +201,10 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 
 		// Members filter
 		if anyMemberSelected(filter.Members) {
-            if !filter.Members[len(artist.Members)] {
-                match = false
-            }
-        }
+			if !filter.Members[len(artist.Members)] {
+				match = false
+			}
+		}
 
 		// Locations filter
 		if len(search) > 2 {
@@ -248,30 +248,35 @@ func normalize(s string) string {
 
 func capitalize(word string) string {
 
-    if len(word) == 0 {
-        return word
-    }
-    return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
+	if len(word) == 0 {
+		return word
+	}
+	return strings.ToUpper(string(word[0])) + strings.ToLower(word[1:])
 }
 
 // Pour formatter "california-usa" en "California, USA"
 func FormatLocations(locations []string) []string {
-    var formatted []string
-    for _, loc := range locations {
-        parts := strings.Split(loc, "-")
-        for i, part := range parts {
-            parts[i] = capitalize(part)
-        }
-        formatted = append(formatted, strings.Join(parts, ", "))
-    }
-    return formatted
+	var formatted []string
+	for _, loc := range locations {
+		parts := strings.Split(loc, "-")
+		for i, part := range parts {
+			if strings.Contains(part, "_") {
+				part1, part2, _ := strings.Cut(part, "_")
+				parts[i] = capitalize(part1) + " " + capitalize(part2)
+			} else {
+				parts[i] = capitalize(part)
+			}
+		}
+		formatted = append(formatted, strings.Join(parts, ", "))
+	}
+	return formatted
 }
 
 func anyMemberSelected(members map[int]bool) bool {
-    for _, v := range members {
-        if v {
-            return true
-        }
-    }
-    return false
+	for _, v := range members {
+		if v {
+			return true
+		}
+	}
+	return false
 }
