@@ -23,16 +23,16 @@ func main() {
 	// flg.Parse permet d'utiliser les options définies précedement, et de pouvoir les gérer dans l'invite de commande du terminal.
 	flag.Parse()
 
-
+	// On stocke un pointeur dans dans la structure AppData.
 	data := &server.AppData{
-		Artists: server.InitArtists(),
+		Artists: server.InitArtists(), // Récolte les données artistes que le pointeur de Data se charge de récupérer.
 	}
 
 	// Création du serveur GO.
 	srv := &http.Server{
-		Addr:     *port,           // définition du port à utiliser.
-		ErrorLog: errorLog,        // Loggage des erreurs.
-		Handler:  server.Routes(data),
+		Addr:     *port,               // définition du port à utiliser.
+		ErrorLog: errorLog,            // Loggage des erreurs.
+		Handler:  server.Routes(data), // Utilisation des informations Artistes dans Data pour initier Handler.
 	}
 
 	// Récupère les informations de infoLog, puis inscrit le texte suivit du numéro du port utilisé
