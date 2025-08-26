@@ -92,16 +92,6 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 	artist := init.Artists[id-1]
 
-	/* artist.TabCoords = GenerateCoordinates(artist)
-
-	coordsJSON, err := json.Marshal(artist.TabCoords)
-	if err != nil {
-		log.Print("Erreur JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	artist.CoordsJSON = template.JS(coordsJSON) */
-
 	// Appel des pages HTML pour afficher les informations.
 	ts, err := template.ParseFiles("./templates/artist.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
