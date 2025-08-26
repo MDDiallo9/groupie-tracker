@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -71,7 +72,7 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	idstring := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idstring)
+	id, _ := strconv.Atoi(idstring)
 	/* if err != nil || id < 1 || id > len(artists) {
 		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
 		return
@@ -121,6 +122,40 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
+	idstring := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idstring)
+	if err != nil || id < 1 {
+		http.Error(w, "ID invalide", http.StatusBadRequest)
+		return
+	}
+
+	artist := init.Artists[id-1]
+	artist.TabCoords = GenerateCoordinates(artist)
+
+	coordsJSON, err := json.Marshal(artist.TabCoords)
+	if err != nil {
+		log.Print("Erreur JSON:", err)
+		http.Error(w, "Erreur interne", http.StatusInternalServerError)
+		return
+	}
+
+	artist.CoordsJSON = template.JS(coordsJSON)
+
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/map.html",
+		"./templates/partials/base.html",
+		"./templates/partials/head.html",
+		"./templates/partials/footer.html",
+	))
+
+	err = tmpl.ExecuteTemplate(w, "base.html", artist)
+	if err != nil {
+		log.Print("Erreur template:", err)
+		http.Error(w, "Erreur interne", http.StatusInternalServerError)
 	}
 }
 
