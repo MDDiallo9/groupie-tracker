@@ -76,38 +76,9 @@
                         {{ end }}
                     </tbody>
                 </table>
-                <!--             
-                
-
-            <div id="map">
-            </div>
         </div>
+        <a href="/map?id={{ .ID }}" class="btn-map">Voir la carte des concerts</a>
     </div>
 </div>
-<script>
-            
-            locationiq.key = 'pk.09b4dfb8ed80cba511a849aa0372e330';
-            //Define the map and configure the map's theme
-            var map = new maplibregl.Map({
-                container: 'map',
-                style: locationiq.getLayer("Streets"),
-                zoom: 0.1,
-            });
-            const tabCoords = JSON.parse('{{ .CoordsJSON }}');
-            console.log("Coordonnées injectées :", tabCoords);
-            tabCoords.forEach(coord => {
-                const el = document.createElement('div');
-                el.className = 'marker';
-                el.style.backgroundImage = 'url(https://tiles.locationiq.com/static/images/marker50px.png)';
-                el.style.width = '50px';
-                el.style.height = '50px';
 
-                new maplibregl.Marker(el)
-                    .setLngLat([parseFloat(coord.lon), parseFloat(coord.lat)])
-                    .setPopup(new maplibregl.Popup().setText(coord.name))
-                    .addTo(map);
-            });
-            console.log("Coordonnées injectées :", tabCoords);
-
-        </script>
 {{ end }}

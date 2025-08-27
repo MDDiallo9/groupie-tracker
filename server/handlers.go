@@ -1,14 +1,14 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
+	"groupie-tracker/api"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"groupie-tracker/api"
 )
 
 type Suggestion struct {
@@ -71,7 +71,7 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	idstring := r.URL.Query().Get("id")
-	id, err := strconv.Atoi(idstring)
+	id, _ := strconv.Atoi(idstring)
 	/* if err != nil || id < 1 || id > len(artists) {
 		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
 		return
@@ -124,6 +124,40 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
+	idstring := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idstring)
+	if err != nil || id < 1 {
+		http.Error(w, "ID invalide", http.StatusBadRequest)
+		return
+	}
+
+	artist := init.Artists[id-1]
+	artist.TabCoords = GenerateCoordinates(artist)
+
+	coordsJSON, err := json.Marshal(artist.TabCoords)
+	if err != nil {
+		log.Print("Erreur JSON:", err)
+		http.Error(w, "Erreur interne", http.StatusInternalServerError)
+		return
+	}
+
+	artist.CoordsJSON = template.JS(coordsJSON)
+
+	tmpl := template.Must(template.ParseFiles(
+		"./templates/map.html",
+		"./templates/partials/base.html",
+		"./templates/partials/head.html",
+		"./templates/partials/footer.html",
+	))
+
+	err = tmpl.ExecuteTemplate(w, "base.html", artist)
+	if err != nil {
+		log.Print("Erreur template:", err)
+		http.Error(w, "Erreur interne", http.StatusInternalServerError)
+	}
+}
+
 func search(w http.ResponseWriter, r *http.Request) {
 	var query string
 
@@ -144,30 +178,27 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	unique := make(map[string]bool) // Pour éviter les doublons.
-	var results []api.Artist        // Format pour accueillir les multiples informations
+	var results []api.Artist // Format pour accueillir les multiples informations
 
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
 	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
-		answer.Relations = api.GetRelations(answer)
 
-		nonUnique := false
+		answer.Relations = api.GetRelations(answer)
 
 		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
 		if query == strconv.Itoa(answer.CreationDate) ||
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
-			nonUnique = true
+
 			// answer.Relations = api.GetRelations(answer)
-			// results = append(results, answer)
+			results = append(results, answer)
 		}
 
 		// Boucle de recherche pour les noms des artistes.
 		for _, response := range answer.Members {
 			if strings.Contains(strings.ToLower(response), query) {
 				// answer.Relations = api.GetRelations(answer)
-				nonUnique = true
-				// results = append(results, answer)
+				results = append(results, answer)
 				break
 			}
 		}
@@ -177,19 +208,9 @@ func search(w http.ResponseWriter, r *http.Request) {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
 					// answer.Relations = api.GetRelations(answer)
-					nonUnique = true
-					// results = append(results, answer)
+					results = append(results, answer)
 					break
 				}
-			}
-		}
-
-		// Condition pour éviter les doublons.
-		if nonUnique {
-			identifiant := strings.ToLower(answer.Name)
-			if !unique[identifiant] {
-				unique[identifiant] = true
-				results = append(results, answer)
 			}
 		}
 	}
@@ -230,7 +251,7 @@ func SuggestionsGeneration() []Suggestion {
 
 		artist.Locations = api.GetLocations(artist)
 
-		// Suggestions pour : Groupe de Musique, Date de création du Groupe, Date de sortie du Premier Album.
+		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
 		suggestions = append(suggestions,
 			Suggestion{
 				Texte: artist.Name,

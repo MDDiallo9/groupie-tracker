@@ -307,8 +307,9 @@ form {
 }
 
 #map {
-  min-height: 200px;
-  min-width: 200px;
+  margin: auto;
+  min-height: 400px;
+  min-width: 1000px;
 }
 
 #marker {
