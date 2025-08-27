@@ -11,8 +11,8 @@ var artists []api.Artist
 func InitArtists() []api.Artist {
 	artists = api.GetArtists()
 	for i := range artists {
-		/* artists[i].Locations = api.GetLocations(artists[i])
-		   artists[i].ConcertDates = api.GetConcertDates(artists[i]) */
+		artists[i].Locations = api.GetLocations(artists[i])
+		//artists[i].ConcertDates = api.GetConcertDates(artists[i]) */
 		artists[i].Relations = api.GetRelations(artists[i])
 	}
 	return artists

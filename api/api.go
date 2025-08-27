@@ -250,8 +250,15 @@ func FormatLocations(locations []string) []string {
 		parts := strings.Split(loc, "-")
 		for i, part := range parts {
 			if strings.Contains(part, "_") {
-				part1, part2, _ := strings.Cut(part, "_")
-				parts[i] = capitalize(part1) + " " + capitalize(part2)
+				parts[i] = ""
+				end := ""
+				for strings.Contains(part, "_") {
+					part1, part2, _ := strings.Cut(part, "_")
+					parts[i] += capitalize(part1) + " "
+					part = part2
+					end = part2
+				}
+				parts[i] += capitalize(end)
 			} else {
 				parts[i] = capitalize(part)
 			}

@@ -1,10 +1,44 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map</title>
-</head>
-<body>
-    
-</body>
-</html>
+{{ define "content" }}
+<div class="artist-profile">
+    <div class="artist-profile-img">
+            <img src="{{ .Image }}" alt="{{ .Name }}">
+    </div>
+    <div class="artist-profile-info">
+        <div>
+            <div class="artist-profile-name">{{ .Name }}</div>
+                <div class="artist-profile-meta">
+                    <span>Date de sortie du premier album : {{ .FirstAlbum }}</span>
+                    <span>Date de création du Groupe: {{ .CreationDate }}</span>
+                    <span>Taille du groupe : {{ len .Members }}</span>
+                </div>
+            </div>
+    </div>
+    <div id="map"></div>
+</div>
+<script>
+            
+            locationiq.key = 'pk.09b4dfb8ed80cba511a849aa0372e330';
+            //Define the map and configure the map's theme
+            var map = new maplibregl.Map({
+                container: 'map',
+                style: locationiq.getLayer("Streets"),
+                zoom: 0.1,
+            });
+            const tabCoords = JSON.parse('{{ .CoordsJSON }}');
+            console.log("Coordonnées injectées :", tabCoords);
+            tabCoords.forEach(coord => {
+                const el = document.createElement('div');
+                el.className = 'marker';
+                el.style.backgroundImage = 'url(https://tiles.locationiq.com/static/images/marker50px.png)';
+                el.style.width = '50px';
+                el.style.height = '50px';
+
+                new maplibregl.Marker(el)
+                    .setLngLat([parseFloat(coord.lon), parseFloat(coord.lat)])
+                    .setPopup(new maplibregl.Popup().setText(coord.name))
+                    .addTo(map);
+            });
+            console.log("Coordonnées injectées :", tabCoords);
+
+        </script>
+{{ end }}
