@@ -7,47 +7,49 @@ import (
 	"net/http"
 )
 
+// Structure pour le calcul des coordonnées de la Map.
 type Coordinates struct {
 	Name string
 	Lat  string `json:"lat"`
 	Lon  string `json:"lon"`
 }
 
+// Géocoding pour obtenir les coordonnées des lieux des concerts.
 func Geocoding(location string) (Coordinates, error) {
 	baseUrl := "https://nominatim.openstreetmap.org/search"
-	client := &http.Client{}
+	client := &http.Client{} // Création d'une instance HTTP, un client, pour pouvoir envoyer la requête.
 	var results Coordinates
 
-	// Building the URL
+	// Construction de l'URL.
 	req, err := http.NewRequest("GET", baseUrl, nil)
 	if err != nil {
 		return results, err
 	}
 
-	q := req.URL.Query()
-	q.Add("q", location)
-	q.Add("format", "json")
-	req.URL.RawQuery = q.Encode()
+	q := req.URL.Query()          // Construit la base de l'URL ("req.URL") et ("Query()") prend les options comme GET précédemment mise en place.
+	q.Add("q", location)          // ajout d'un nouveau paramètre dans l'URL, la localisation désirée (ex : "q=Paris").
+	q.Add("format", "json")       // ajout d'un nouveau paramètre dans l'URL, le format attendu (ex : "format=json").
+	req.URL.RawQuery = q.Encode() // Encode l'URL avec tous ces paramètres.
 
-	// Necessary by API policies
+	// Le Header envoi ces données par convention exigée par l'API.
 	req.Header.Set("User-Agent", "GroupieTracker/1.0 (nathpacc@gmail.com)")
 
-	// Sending the request
+	// Envoi de la requête.
 	resp, err := client.Do(req)
 	if err != nil {
 		return results, err
 	}
 	defer resp.Body.Close()
 
+	// Gestion des erreurs.
 	if resp.StatusCode != http.StatusOK {
 		return results, fmt.Errorf("HTTP error %d", resp.StatusCode)
 	}
 
-	// Recovering datas from JSON
-
+	// Récupération du JSON retourné par le site de géocoding.
 	bodyBytes, _ := io.ReadAll(resp.Body)
 	var rawResults []Coordinates
-	json.Unmarshal(bodyBytes, &rawResults)
+	json.Unmarshal(bodyBytes, &rawResults) // Passage de JSON en Bytes.
 
 	if len(rawResults) > 0 {
 		results = rawResults[0]

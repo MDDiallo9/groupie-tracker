@@ -12,37 +12,46 @@ import (
 )
 
 type Suggestion struct {
-	Texte string // ce qui est envoyé en recherche.
-	Label string // Ce qui sera envoyé à côté dans la liste.
+	Texte string // ce qui est envoyé en résultat de recherche.
+	Label string // Ce qui est écrit à côté pour préciser l'origine de la donnée.
 }
 
 func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	var filter api.Filter
-	filter.CreationDate = []int{1950, 2025}
-	filter.FirstAlbumDate = []int{1950, 2020}
+	filter.CreationDate = []int{1950, 2025}   // Définition du Min-Max.
+	filter.FirstAlbumDate = []int{1950, 2020} // Définition du Min-Max.
+
 	if r.Method == "POST" {
+
 		r.ParseForm()
-		// First Album Date
+
+		// Min-Max choisies des dates de sorties du Premier Album par l'utilisateur.
 		minFAD, _ := strconv.Atoi(r.Form.Get("minfAd"))
 		maxFAD, _ := strconv.Atoi(r.Form.Get("maxfAd"))
-		// Creation Date
+
+		// Min-Max choisies des dates de foncdations du Groupe de Musique par l'utilisateur.
 		minCD, _ := strconv.Atoi(r.Form.Get("minCD"))
 		maxCD, _ := strconv.Atoi(r.Form.Get("maxCD"))
+
+		// Map pour le filtre de cases à cocher pour le nombre de membres du groupe.
 		members := map[int]bool{
-			1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false,
+			1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false, // Si true, alors sélectionné par l'utilisateur.
 		}
-		for _, num := range r.Form["members"] {
-			n, _ := strconv.Atoi(num)
+		for _, num := range r.Form["members"] { // "r.Form["members"]" contient les valeurs envoyées par le formulaire.
+			n, _ := strconv.Atoi(num) // conversion de la réponse en INT.
 			members[n] = true
 		}
+
+		// Structure du filtre.
 		filter = api.Filter{
 			Location:       r.Form.Get("Location"),
-			FirstAlbumDate: []int{minFAD, maxFAD}, // or use both min/max if your filter supports a range
+			FirstAlbumDate: []int{minFAD, maxFAD},
 			Members:        members,
 			CreationDate:   []int{minCD, maxCD},
-		} // Besoin de recharger home avec le api.FilterBy(artists,filter)
+		}
 	}
 
+	// Structure pour gérer les suggestions et leurs apparitions sur le page HTML.
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
@@ -51,10 +60,12 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 		Artists:     init.Artists,
 	}
 
+	// Vérifie si il y a une demande du client pour obtenir des données au travers du filtre.
 	if isFilterFilled(filter) {
 		data.Artists = api.FilterBy(init.Artists, filter)
 	}
 
+	// Appel des pages HTML pour afficher les informations.
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print(err.Error())
@@ -62,6 +73,7 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 		return
 	}
 
+	// Chargement de la base.html avec toutes les options précédentes.
 	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Print(err.Error())
@@ -69,9 +81,11 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
+// Fonction qui gère l'affichage des informations pour la page de chaque artiste.
 func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
-	idstring := r.URL.Query().Get("id")
-	id, _ := strconv.Atoi(idstring)
+	idstring := r.URL.Query().Get("id") // Récupération de l'ID du groupe de musique sur lequel l'utilisateur veut aller.
+	id, err := strconv.Atoi(idstring)
+
 	/* if err != nil || id < 1 || id > len(artists) {
 		http.Error(w, "Invalid artist ID", http.StatusBadRequest)
 		return
@@ -79,16 +93,7 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 	artist := init.Artists[id-1]
 
-	/* artist.TabCoords = GenerateCoordinates(artist)
-
-	coordsJSON, err := json.Marshal(artist.TabCoords)
-	if err != nil {
-		log.Print("Erreur JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	artist.CoordsJSON = template.JS(coordsJSON) */
-
+	// Appel des pages HTML pour afficher les informations.
 	ts, err := template.ParseFiles("./templates/artist.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print(err.Error())
@@ -96,6 +101,7 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 		return
 	}
 
+	// Chargement de la base.html avec toutes les options précédentes.
 	err = ts.ExecuteTemplate(w, "base.html", artist)
 	if err != nil {
 		log.Print(err.Error())
@@ -161,9 +167,8 @@ func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
 func search(w http.ResponseWriter, r *http.Request) {
 	var query string
 
-	// Vérification que c'est une méthode POST
 	if r.Method == "POST" {
-		r.ParseForm() // Mise en forme des données de la requête "r".
+		r.ParseForm()
 		// la requête obtenue est mise en minuscule pour quelle ne soit pas sensible à la casse.
 		query = strings.ToLower(r.FormValue("search"))
 	} else {
@@ -189,16 +194,13 @@ func search(w http.ResponseWriter, r *http.Request) {
 		if query == strconv.Itoa(answer.CreationDate) ||
 			strings.Contains(strings.ToLower(answer.Name), query) ||
 			strings.Contains(strings.ToLower(answer.FirstAlbum), query) {
-
-			// answer.Relations = api.GetRelations(answer)
-			results = append(results, answer)
+			nonUnique = true
 		}
 
 		// Boucle de recherche pour les noms des artistes.
 		for _, response := range answer.Members {
 			if strings.Contains(strings.ToLower(response), query) {
-				// answer.Relations = api.GetRelations(answer)
-				results = append(results, answer)
+				nonUnique = true
 				break
 			}
 		}
@@ -207,8 +209,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		for date, cities := range answer.Relations {
 			for _, city := range cities {
 				if strings.Contains(strings.ToLower(date), query) || strings.Contains(strings.ToLower(city), query) {
-					// answer.Relations = api.GetRelations(answer)
-					results = append(results, answer)
+					nonUnique = true
 					break
 				}
 			}
@@ -221,6 +222,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Structure anonyme pour gérer l'envoi des suggestions.
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
@@ -229,7 +231,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		Artists:     results,
 	}
 
-	// Exécution du template
+	// Chargement des pages HTML.
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print("Erreur template:", err)
@@ -237,6 +239,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Exécution du template
 	err = ts.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Print("Erreur exécution template:", err)
@@ -244,6 +247,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Construction des suggestions
 func SuggestionsGeneration() []Suggestion {
 	var suggestions []Suggestion
 
@@ -286,6 +290,7 @@ func SuggestionsGeneration() []Suggestion {
 	return suggestions
 }
 
+// Vérification des filtres de recherches.
 func isFilterFilled(f api.Filter) bool {
 	for _, v := range f.Members {
 		if v {

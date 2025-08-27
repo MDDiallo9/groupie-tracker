@@ -7,6 +7,7 @@ import (
 
 var artists []api.Artist
 
+// Fonction qui parcours les artistes et les affilies à leurs informations de l'API.Artist.
 func InitArtists() []api.Artist {
 	artists = api.GetArtists()
 	for i := range artists {
@@ -17,6 +18,7 @@ func InitArtists() []api.Artist {
 	return artists
 }
 
+// Fonction en charge d'appeler "Geocoding" pour obtenir les coordonnées des concerts du groupe de musique sondé.
 func GenerateCoordinates(artist api.Artist) []api.Coordinates {
 	var tabcoords []api.Coordinates
 	for _, place := range artist.Locations {
