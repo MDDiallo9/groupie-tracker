@@ -32,7 +32,7 @@ func Routes(data *AppData) *http.ServeMux {
 		search(w, r)
 	})
 	mux.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
-		IndexPage(w, r)
+		IndexPage(w, r,data)
 	})
 	mux.HandleFunc("/map", func(w http.ResponseWriter, r *http.Request) {
 		ArtistMap(w, r, data)
