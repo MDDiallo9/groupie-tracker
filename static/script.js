@@ -3,8 +3,6 @@ const range = document.querySelector(".range-selected");
 const rangeInput = document.querySelectorAll(".range-input input");
 const rangePrice = document.querySelectorAll(".range-price input");
 
-console.log("aaaa");
-
 rangeInput.forEach((input) => {
     input.addEventListener("input", (e) => {
         let minRange = parseInt(rangeInput[0].value);
@@ -126,4 +124,15 @@ maxCD.addEventListener("input", function () {
         maxCD.value = maxVal;
     }
     maxCDRange.value = maxVal;
+});
+
+const swiper = new Swiper('.playlist-swiper', {
+  slidesPerView: 'auto',
+  spaceBetween: 24,
+  grabCursor: true,
+  navigation: {
+    nextEl: '.swiper-button-next',
+    prevEl: '.swiper-button-prev',
+  },
+  effect: 'slide',
 });
