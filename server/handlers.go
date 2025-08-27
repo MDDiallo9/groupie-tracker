@@ -55,14 +55,19 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
+		Playlist20 []api.Artist
+		Location []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(),
 		Artists:     init.Artists,
+		Playlist20: api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
+		Location: api.FilterBy(init.Artists, api.Filter{Location: "france",CreationDate: []int{1950, 2025}}),
 	}
 
 	// Vérifie si il y a une demande du client pour obtenir des données au travers du filtre.
 	if isFilterFilled(filter) {
 		data.Artists = api.FilterBy(init.Artists, filter)
+		log.Print(filter)
 	}
 
 	// Appel des pages HTML pour afficher les informations.
