@@ -13,7 +13,7 @@
 <body>
     <nav>
         <a href="home.html">
-            <h2>Groupie Tracker</h2>
+            <p id="logo">Groupie Tracker</p>
         </a>
 
         <form action="/" method="post" id="filters">
@@ -21,10 +21,8 @@
                 <p>First album date</p>
                 <div class="range">
                     <div class="range-slider">
-                        <!-- Mise en commentaire de span pour enlever la partie bleue du filtre,
-                        qui faisait tâche car non dynamique. -->
-<!--                         <span class="range-selected"></span>
- -->                    </div>
+                        <span class="range-selected"></span>
+                    </div>
                     <div class="range-input">
                         <input type="range" class="min" min="1950" max="2020" value="1950" step="1" id="minfAdRange">
                         <input type="range" class="max" min="1950" max="2020" value="2020" step="1" id="maxfAdRange">
@@ -41,10 +39,8 @@
                 <p>Date de création</p>
                 <div class="range">
                     <div class="range-slider">
-                        <!-- Mise en commentaire de span pour enlever la partie bleue du filtre,
-                        qui faisait tâche car non dynamique. -->
-<!--                         <span class="range-selected"></span>
- -->                    </div>
+                        <span class="range-selected"></span>
+                    </div>
                     <div class="range-input">
                         <input type="range" class="min" min="1950" max="2025" value="1950" step="1" id="minCDRange">
                         <input type="range" class="max" min="1950" max="2025" value="2025" step="1" id="maxCDRange">
@@ -72,11 +68,20 @@
             </div>
             <label class="location">
                 <input type="text" name="Location" placeholder="Enter Location">
-                <input type="submit">
-            </label>
 
+            </label>
+            <label class="submit">
+                <input type="submit" value="">
+                <button type="submit">
+                    <svg viewBox="0 0 24 24" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </button>
+            </label>
         </form>
 
+        <footer style="text-align: center;margin-top: 30%;">2025</footer>
     </nav>
     {{ block "content" .}} {{end}}
     {{ block "footer" .}} {{end}}
