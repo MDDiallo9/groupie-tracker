@@ -46,13 +46,20 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
+		Playlist20 []api.Artist
+		Location []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(),
 		Artists:     init.Artists,
+		Playlist20: api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
+		Location: api.FilterBy(init.Artists, api.Filter{Location: "france",CreationDate: []int{1950, 2025}}),
 	}
+
+	
 
 	if isFilterFilled(filter) {
 		data.Artists = api.FilterBy(init.Artists, filter)
+		log.Print(filter)
 	}
 
 	ts, err := template.ParseFiles("./templates/home.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
