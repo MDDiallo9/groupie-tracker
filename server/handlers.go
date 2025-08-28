@@ -4,12 +4,13 @@ import (
 	"math/rand"
     "time"
 	"encoding/json"
-	"groupie-tracker/api"
 	"html/template"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"groupie-tracker/api"
 )
 
 type Suggestion struct {
@@ -197,7 +198,6 @@ func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
 	for _, answer := range init.Artists { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
-
 		nonUnique := false
 
 		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
@@ -284,6 +284,7 @@ func NotFound(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
 
 // Construction des suggestions
 func SuggestionsGeneration(init *AppData) []Suggestion {
