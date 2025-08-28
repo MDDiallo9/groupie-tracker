@@ -168,7 +168,6 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 	search := normalize(filter.Location) // enlève les caractères spéciaux.
 
 	for _, artist := range artists {
-		artist.Locations = GetLocations(artist)                  // Liaison des localisations des concerts aux groupes d'artistes.
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:]) // Format d'origine en string("00/00/2000"), le [6:] ne garde que l'année convertit en INT.
 		match := true
 

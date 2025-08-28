@@ -29,7 +29,7 @@ func Routes(data *AppData) *http.ServeMux {
 		Artist(w, r, data)
 	})
 	mux.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
-		search(w, r)
+		search(w, r,data)
 	})
 	mux.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
 		IndexPage(w, r,data)

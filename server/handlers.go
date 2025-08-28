@@ -60,7 +60,7 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 		Location []api.Artist
 		Highlight api.Artist
 	}{
-		Suggestions: SuggestionsGeneration(),
+		Suggestions: SuggestionsGeneration(init),
 		Artists:     init.Artists,
 		Playlist20: api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
 		Location: api.FilterBy(init.Artists, api.Filter{Location: "france",CreationDate: []int{1950, 2025}}),
@@ -172,7 +172,7 @@ func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func search(w http.ResponseWriter, r *http.Request) {
+func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 	var query string
 
 	// Vérification que c'est une méthode POST
@@ -196,8 +196,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	var results []api.Artist        // Format pour accueillir les multiples informations
 
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
-	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
-		answer.Relations = api.GetRelations(answer)
+	for _, answer := range init.Artists { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
 
 		nonUnique := false
 
@@ -252,7 +251,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		Suggestions []Suggestion
 		Artists     []api.Artist
 	}{
-		Suggestions: SuggestionsGeneration(),
+		Suggestions: SuggestionsGeneration(init),
 		Artists:     results,
 	}
 
@@ -287,12 +286,10 @@ func NotFound(w http.ResponseWriter, r *http.Request){
 }
 
 // Construction des suggestions
-func SuggestionsGeneration() []Suggestion {
+func SuggestionsGeneration(init *AppData) []Suggestion {
 	var suggestions []Suggestion
 
-	for _, artist := range api.GetArtists() {
-
-		artist.Locations = api.GetLocations(artist)
+	for _, artist := range init.Artists {
 
 		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
 		suggestions = append(suggestions,
