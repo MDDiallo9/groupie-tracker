@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -243,8 +242,8 @@ func search(w http.ResponseWriter, r *http.Request) {
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
 		// fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
-		fmt.Fprintf(w, "<html><body><p> ERROR 404, Page Not Found </p></body></html>")
-
+		// fmt.Fprintf(w, "<html><body><p> ERROR 404, Page Not Found </p></body></html>")
+		http.ServeFile(w, r, "./templates/404.html")
 		return
 	}
 
