@@ -18,7 +18,7 @@
 
         <form action="/" method="post" id="filters">
             <div id="firstAlbumDate">
-                <p>First album date</p>
+                <p>Premier album</p>
                 <div class="range">
                     <div class="range-slider">
                         <span class="range-selected"></span>
@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div id="members-filter" style="display: flex; align-items: center; gap: 0.5em;flex-direction: column;">
-                <label style="margin-right: 0.5em;">Members:</label>
+                <label style="margin-right: 0.5em;">Membres</label>
                 <div>
                     <label><input type="checkbox" name="members" value="1"> 1</label>
                     <label><input type="checkbox" name="members" value="2"> 2</label>
@@ -67,7 +67,7 @@
                 </div>
             </div>
             <label class="location">
-                <input type="text" name="Location" placeholder="Enter Location">
+                <input type="text" name="Location" placeholder="Ville/Pays">
 
 
             </label>
@@ -82,7 +82,7 @@
             </label>
         </form>
 
-        <footer style="text-align: center;margin-top: 30%;">2025</footer>
+        <footer style="text-align: center;margin-top: 30%;" class="hide">2025</footer>
     </nav>
     {{ block "content" .}} {{end}}
     {{ block "footer" .}} {{end}}

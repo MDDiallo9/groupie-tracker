@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Story+Script&display=swap');
 
 /* Color vars */
 
@@ -71,6 +71,27 @@ a {
   justify-content: space-around;
 }
 
+@media (max-width: 700px){
+  body {
+    display: unset !important;
+  }
+
+  .card {
+    width: 50% !important;
+  }
+  nav {
+    width: 100% !important;
+    margin: 0 !important;
+    height: 200px;
+  }
+  #filters{
+    display: none !important;
+  }
+  .hide{
+    display: none !important;
+  }
+}
+
 body {
   background-color: black;
   display: flex;
@@ -101,6 +122,7 @@ nav {
 }
 
 #logo {
+  font-family: "Story-Script";
   font-size: 2rem;
   text-align: center;
   display: flex;
@@ -144,12 +166,12 @@ main {
 }
 
 .artistName {
-  font-size: 1.8em;
+  font-size: 1.6em;
   font-weight: 800;
   max-width: fit-content;
   text-transform: uppercase;
   overflow: hidden;
-  font-size: clamp(1em, 4vw, 1.8em);
+  font-size: clamp(1em, 4vw, 1.3em);
 }
 
 .createdDate {
@@ -640,9 +662,23 @@ button[type="submit"] svg {
 }
 
 .playlist-swiper .swiper-slide {
-  width: 25% !important;
-  height: 400px;
+  width: 400px ;
+  height: 420px;
   display: flex;
   justify-content: center;
 }
 
+
+.playlist-swiper .artistName {
+  position: absolute;
+  bottom: 0;
+  background-color: black;
+  min-width: 100%;
+}
+
+#notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}

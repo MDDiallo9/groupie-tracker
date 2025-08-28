@@ -1,8 +1,9 @@
 package server
 
 import (
+	"math/rand"
+    "time"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -56,13 +57,15 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
-		Playlist20  []api.Artist
-		Location    []api.Artist
+		Playlist20 []api.Artist
+		Location []api.Artist
+		Highlight api.Artist
 	}{
-		Suggestions: SuggestionsGeneration(),
+		Suggestions: SuggestionsGeneration(init),
 		Artists:     init.Artists,
-		Playlist20:  api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
-		Location:    api.FilterBy(init.Artists, api.Filter{Location: "france", CreationDate: []int{1950, 2025}}),
+		Playlist20: api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
+		Location: api.FilterBy(init.Artists, api.Filter{Location: "france",CreationDate: []int{1950, 2025}}),
+		Highlight: GetRandomArtist(init.Artists),
 	}
 
 	// Vérifie si il y a une demande du client pour obtenir des données au travers du filtre.
@@ -115,11 +118,11 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func IndexPage(w http.ResponseWriter, r *http.Request,init *AppData ) {
+func IndexPage(w http.ResponseWriter, r *http.Request,init *AppData) {
 	data := struct {
 		Artists []api.Artist
 	}{
-		Artists: init.Artists,
+		Artists: api.FilterBy(artists, api.Filter{CreationDate: []int{2000, 2010}})[8:],
 	}
 
 	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
@@ -170,7 +173,7 @@ func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func search(w http.ResponseWriter, r *http.Request) {
+func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 	var query string
 
 	// Vérification que c'est une méthode POST
@@ -194,9 +197,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 	var results []api.Artist        // Format pour accueillir les multiples informations
 
 	// "answer" parcours chaque sous-ensemble de la structure Artists.
-	for _, answer := range api.GetArtists() { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
-		answer.Relations = api.GetRelations(answer)
-
+	for _, answer := range init.Artists { // Plutôt que de créer une variable, on exploite directement la struct depuis sa fonction.
 		nonUnique := false
 
 		// Boucle de recherche pour la date de création, du premier album et le nom du groupe.
@@ -242,7 +243,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
-		fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
+		http.Redirect(w,r,"/404",http.StatusSeeOther)
 		return
 	}
 
@@ -250,7 +251,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 		Suggestions []Suggestion
 		Artists     []api.Artist
 	}{
-		Suggestions: SuggestionsGeneration(),
+		Suggestions: SuggestionsGeneration(init),
 		Artists:     results,
 	}
 
@@ -269,14 +270,27 @@ func search(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func NotFound(w http.ResponseWriter, r *http.Request){
+	ts, err := template.ParseFiles("./templates/404.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	if err != nil {
+		log.Print("Erreur template:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.ExecuteTemplate(w, "base.html",nil)
+	if err != nil {
+		log.Print("Erreur exécution template:", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
 
 // Construction des suggestions
-func SuggestionsGeneration() []Suggestion {
+func SuggestionsGeneration(init *AppData) []Suggestion {
 	var suggestions []Suggestion
 
-	for _, artist := range api.GetArtists() {
-
-		artist.Locations = api.GetLocations(artist)
+	for _, artist := range init.Artists {
 
 		// Suggestions pour : Groupe de Musique, Date de création du Groupe,Date de sortie du Premier Album.
 		suggestions = append(suggestions,
@@ -327,4 +341,13 @@ func isFilterFilled(f api.Filter) bool {
 		return true
 	}
 	return false
+}
+
+
+func GetRandomArtist(artists []api.Artist) api.Artist {
+    if len(artists) == 0 {
+        return api.Artist{}
+    }
+    rand.Seed(time.Now().UnixNano())
+    return artists[rand.Intn(len(artists))]
 }

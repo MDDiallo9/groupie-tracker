@@ -136,3 +136,27 @@ const swiper = new Swiper('.playlist-swiper', {
   },
   effect: 'slide',
 });
+
+// Color thief
+
+const colorThief = new ColorThief();
+    const img = document.querySelector('#highlightImage');
+    const image = document.querySelector('#highlightImage');
+    img.crossOrigin = "anonymous";
+
+    // Make sure image is finished loading
+    if (img.complete) {
+      console.log(colorThief.getColor(img));
+    } else {
+      image.addEventListener('load', function() {
+        console.log(colorThief.getColor(img));
+      });
+    }
+
+// Spotify API
+
+
+const highlightName = document.querySelector('#highlightName');
+fetch()
+
+
