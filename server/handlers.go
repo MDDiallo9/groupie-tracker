@@ -115,7 +115,7 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func IndexPage(w http.ResponseWriter, r *http.Request,init *AppData ) {
+func IndexPage(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Artists []api.Artist
 	}{
@@ -242,7 +242,9 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
-		fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
+		// fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
+		fmt.Fprintf(w, "<html><body><p> ERROR 404, Page Not Found </p></body></html>")
+
 		return
 	}
 
@@ -268,7 +270,6 @@ func search(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
-
 
 // Construction des suggestions
 func SuggestionsGeneration() []Suggestion {
