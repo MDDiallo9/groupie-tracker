@@ -6,7 +6,7 @@ import (
 )
 
 type AppData struct {
-    Artists []api.Artist
+	Artists []api.Artist
 }
 
 // ServeMux permet de gérer plusieurs pages dans le même temps. ex /acceuil, /artistes, /localisations,...
@@ -21,22 +21,8 @@ func Routes(data *AppData) *http.ServeMux {
 	// mux.Handle permet de charger le CSS sur la page html.
 	mux.Handle("/static/", http.StripPrefix("/static", fileserver))
 
- /*  InitArtists() */
+	/*  InitArtists() */
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-<<<<<<< Updated upstream
-        home(w, r, data)
-    })
-    mux.HandleFunc("/artist", func(w http.ResponseWriter, r *http.Request) {
-        Artist(w, r, data)
-    })
-    mux.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
-        search(w, r)
-    })
-    mux.HandleFunc("/index", func(w http.ResponseWriter, r *http.Request) {
-        IndexPage(w, r)
-    })
-  
-=======
 		home(w, r, data)
 	})
 	mux.HandleFunc("/artist", func(w http.ResponseWriter, r *http.Request) {
@@ -51,8 +37,5 @@ func Routes(data *AppData) *http.ServeMux {
 	mux.HandleFunc("/map", func(w http.ResponseWriter, r *http.Request) {
 		ArtistMap(w, r, data)
 	})
-	
-
->>>>>>> Stashed changes
 	return mux
 }

@@ -366,8 +366,9 @@ details > summary::-webkit-details-marker {
 }
 
 #map {
-  min-height: 200px;
-  min-width: 200px;
+  margin: auto;
+  min-height: 400px;
+  min-width: 1000px;
 }
 
 #marker {
@@ -563,6 +564,7 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
   background-color: #45a049;
+
 }
 
 #searchBar {
@@ -664,8 +666,7 @@ button[type="submit"] svg {
   display: flex;
   justify-content: center;
 }
-<<<<<<< Updated upstream
-=======
+
 
 .playlist-swiper .artistName {
   position: absolute;
@@ -674,4 +675,3 @@ button[type="submit"] svg {
   min-width: 100%;
 }
 
->>>>>>> Stashed changes
