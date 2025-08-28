@@ -1,7 +1,11 @@
 package server
 
 import (
+<<<<<<< Updated upstream
 	"fmt"
+=======
+	"encoding/json"
+>>>>>>> Stashed changes
 	"html/template"
 	"log"
 	"net/http"
@@ -203,7 +207,7 @@ func search(w http.ResponseWriter, r *http.Request) {
 
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
-		fmt.Fprintf(w, "<html><body><p> Nous n'avons pas de correspondances avec votre recherche, veuillez essayer d'autres éléments clés pour tenter de trouver ce que vous voulez. </p></body></html>")
+		http.Redirect(w,r,"/404",404)
 		return
 	}
 
