@@ -7,6 +7,7 @@ import (
 
 type AppData struct {
 	Artists []api.Artist
+	API_Key string
 }
 
 // ServeMux permet de gérer plusieurs pages dans le même temps. ex /acceuil, /artistes, /localisations,...
@@ -36,6 +37,9 @@ func Routes(data *AppData) *http.ServeMux {
 	})
 	mux.HandleFunc("/map", func(w http.ResponseWriter, r *http.Request) {
 		ArtistMap(w, r, data)
+	})
+	mux.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		FilterRefresh(w, r, data)
 	})
 	mux.HandleFunc("/404", func(w http.ResponseWriter, r *http.Request) {
 		NotFound(w, r)
