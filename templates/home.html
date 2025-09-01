@@ -1,8 +1,6 @@
 {{ define "content" }}
 
 <main class="">
-
-
   <div style="width: 100%;">
     <form method="POST" action="/search" id="searchBar">
       <input type="text" name="search" list="suggestions" placeholder="Rechercher un groupe, un artiste, une date..." />
@@ -28,7 +26,7 @@
   <div class="swiper popular-swiper">
     <div class="swiper-wrapper">
       {{ range .Popular }}
-      <a class="card swiper-slide" href="artist?id={{.ID}}">
+      <a class="swiper-slide" href="artist?id={{.ID}}">
         <div class="artistImage">
           <img src="{{.Image}}" alt="">
         </div>
@@ -62,7 +60,7 @@
       <!-- Slides -->
       {{ range .Location}}
 
-      <a class="card swiper-slide" href="artist?id={{.ID}}">
+      <a class="swiper-slide" href="artist?id={{.ID}}">
 
 
         <div class="artistImage">
@@ -89,7 +87,7 @@
   </div>
 
   <div class="separator">
-    <p>Playlist 2000s</p>
+    <p>Artistes</p>
     <ul>
       <li data-api="dec=60s">60s</li>
       <li data-api="dec=70s">70s</li>
@@ -97,7 +95,6 @@
       <li data-api="dec=90s">90s</li>
       <li data-api="dec=2000s">2000s</li>
       <li data-api="dec=2010s">2010s</li>
-      <li data-api="dec=2020s">2020s</li>
     </ul>
   </div>
   <div class="swiper playlist-swiper">
@@ -106,7 +103,7 @@
       <!-- Slides -->
       {{ range .Playlist20}}
 
-      <a class="card swiper-slide" href="artist?id={{.ID}}">
+      <a class="swiper-slide" href="artist?id={{.ID}}">
 
 
         <div class="artistImage">
@@ -132,7 +129,7 @@
     <div class="swiper-scrollbar"></div>
   </div>
 
-  {{ range .Artists}}
+  <!-- {{ range .Artists}}
   <a class="card" href="artist?id={{.ID}}">
 
 
@@ -147,7 +144,7 @@
     <p class="creationDate">{{.CreationDate}}</p>
 
   </a>
-  {{end}}
+  {{end}} -->
 
 
 </main>
