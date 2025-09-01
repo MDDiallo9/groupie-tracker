@@ -1,0 +1,745 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Story+Script&display=swap");
+
+:root {
+  --text-color: white;
+  --background-card: rgb(44, 47, 59);
+  --background-sidebar: rgb(24, 26, 32);
+  --accent: rgb(255, 111, 97);
+  --active-btn: rgb(34, 201, 158);
+}
+
+/* CSS Reset */
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+  font-family: Roboto;
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: none;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+#searchBar {
+  display: flex !important;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+body {
+  background-color: #111;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 32px 0;
+  width: auto;
+  max-height: 100vh;
+}
+
+@media (max-width: 700px) {
+  body {
+    flex-direction: column;
+    padding: 0;
+    gap: 1em;
+  }
+
+  .card {
+    width: 50% !important;
+  }
+  nav {
+    padding: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    max-width: unset !important;
+  }
+  main {
+    width: 100% !important;
+  }
+  #filters {
+    display: none !important;
+  }
+  .hide {
+    display: none !important;
+  }
+  .popular-swiper .swiper-slide,
+  .popular-swiper .card {
+    width: 250px !important;
+    height: 250px !important;
+    border-radius: 10px;
+    z-index: 1;
+    overflow: visible !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .popular-swiper {
+    width: 100%;
+    /* margin: 10px 0 32px 0; */
+   
+  }
+}
+
+.separator {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 1.6em;
+  color: #ff6f61;
+  margin: 12px 0 12px 0;
+  font-weight: 700;
+  gap: 12px;
+}
+
+#logo {
+  font-family: "Story-Script";
+  font-size: 2rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+}
+
+.icon {
+  width: 1.5em;
+  height: 1.5em;
+  color: #ff6f61;
+}
+
+nav {
+  width: 20%;
+  min-width: 260px;
+  max-width: 350px;
+  background-color: var(--background-sidebar);
+  border-radius: 18px;
+  margin: 0 32px 0 32px;
+  padding: 2em 1.5em;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+  padding-right: 20px;
+}
+
+#members-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex-direction: column;
+}
+
+#members-filter label {
+  margin-right: 0.5em;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 1500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background-color: #ff6f61;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.card,
+button,
+input,
+a {
+  transition: all 0.2s;
+}
+
+/* Artist  */
+.artist-profile {
+  margin: 40px auto;
+  background: rgba(40, 44, 52, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  padding: 2.5em 2em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2em;
+  align-items: flex-start;
+}
+
+.artist-profile-img {
+  flex: 1 1 220px;
+  max-width: 320px;
+  min-width: 180px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  background: #232526;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.artist-profile-img img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.artist-profile-info {
+  flex: 2 1 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+}
+
+.artist-profile-name {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffd700;
+  margin-bottom: 0.2em;
+  text-shadow: 0 2px 8px #0008;
+}
+
+.artist-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  font-size: 1.1em;
+  color: #bbb;
+}
+
+.artist-profile-meta span {
+  background: #333a;
+  border-radius: 6px;
+  padding: 0.3em 0.8em;
+  margin-right: 0.5em;
+}
+
+.artist-profile-section {
+  margin-top: 1.2em;
+}
+
+.artist-profile-section h2 {
+  font-size: 1.2em;
+  color: #ff6f61;
+  margin-bottom: 0.5em;
+  letter-spacing: 1px;
+}
+
+.artist-members-list,
+.artist-locations-list,
+.artist-dates-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7em;
+}
+
+.artist-members-list span,
+.artist-locations-list span,
+.artist-dates-list span {
+  background: #444a;
+  color: #fff;
+  border-radius: 5px;
+  padding: 0.25em 0.7em;
+  font-size: 1em;
+  margin-bottom: 0.3em;
+  box-shadow: 0 1px 4px #0002;
+}
+
+.dropdown-summary {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  color: #ff6f61;
+  font-weight: bold;
+  gap: 0.5em;
+  cursor: pointer;
+  outline: none;
+  padding: 0.2em 0;
+  user-select: none;
+}
+
+details > summary::-webkit-details-marker {
+  margin-right: 0.5em;
+  font-size: 1.2em;
+}
+
+/* Filtres */
+
+#filters {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 1em;
+}
+
+#filters p {
+  margin: 1em;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .artist-profile {
+    flex-direction: column;
+    padding: 1.2em 0.5em;
+  }
+  .artist-profile-img {
+    margin: 0 auto;
+    max-width: 90vw;
+  }
+  .artist-profile-info {
+    padding: 0 0.5em;
+  }
+}
+
+#map {
+  margin: auto;
+  min-height: 400px;
+  min-width: 1000px;
+}
+
+#marker {
+  background-image: url(https://tiles.locationiq.com/static/images/marker.png);
+  background-size: cover;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+
+/* SLIDERS */
+
+.range-slider {
+  height: 5px;
+  position: relative;
+  background-color: #e1e9f6;
+  border-radius: 2px;
+}
+.range-selected {
+  height: 100%;
+  left: 30%;
+  right: 30%;
+  position: absolute;
+  border-radius: 5px;
+}
+
+/* RANGE ELEMS  */
+
+.range-input {
+  position: relative;
+}
+.range-input input {
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  top: -7px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+.range-input input::-webkit-slider-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  border: 3px solid #1b53c0;
+  background-color: #fff;
+  pointer-events: auto;
+  -webkit-appearance: none;
+}
+.range-input input::-moz-range-thumb {
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  border: 3px solid #1b53c0;
+  background-color: #fff;
+  pointer-events: auto;
+  -moz-appearance: none;
+}
+
+/* ///// */
+
+.range-price {
+  margin: 30px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.range-price label {
+  margin-right: 5px;
+}
+.range-price input {
+  width: 40px;
+  padding: 5px;
+}
+.range-price input:first-of-type {
+  margin-right: 15px;
+}
+
+label + input {
+  width: 80px !important;
+  color: black;
+}
+
+input {
+  color: black;
+}
+
+#filters {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+}
+
+/* styled input */
+
+#filters .location {
+  display: flex;
+  align-items: center;
+  background: #232323;
+  border-radius: 24px;
+  padding: 6px 16px;
+  width: 320px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#filters input[type="text"][name="Location"] {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1rem;
+  flex: 1;
+  padding: 8px 0;
+  margin-right: 8px;
+}
+
+#filters input[type="text"][name="Location"]::placeholder {
+  color: #bbb;
+  font-size: 1rem;
+  opacity: 1;
+}
+
+#filters input[type="submit"] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#filters input[type="submit"]::before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z"/></svg>')
+    no-repeat center center;
+  background-size: contain;
+}
+
+/* Table */
+.artist-relations-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+}
+.artist-relations-table th,
+.artist-relations-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.artist-relations-table th {
+  background: #222;
+  color: #fff;
+}
+.artist-relations-table td span {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+
+/* Formulaire de recherche */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  width: 30%;
+  box-sizing: border-box;
+}
+
+input[type="submit"] {
+  padding: 4px;
+  font-size: 16px;
+  background-color: #e27a19;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+#searchBar {
+  display: flex;
+  align-items: center;
+  background: #232323;
+  border-radius: 24px;
+  padding: 8px 20px;
+  width: 60%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  margin: 0 auto;
+  gap: 12px;
+}
+
+/* Search Input */
+#searchBar input[type="text"] {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1.1rem;
+  flex: 1;
+  padding: 8px 0;
+  margin-right: 8px;
+}
+
+#searchBar input[type="text"]::placeholder {
+  color: #bbb;
+  font-size: 1.1rem;
+  opacity: 1;
+}
+
+/* Search Button */
+button[type="submit"] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button[type="submit"] svg {
+  width: 24px;
+  height: 24px;
+  stroke: #bbb;
+  fill: none;
+}
+
+/* Swiper */
+
+.swiper {
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.swiper-slide {
+  margin: 0 12px;
+}
+
+/* Playlist Swiper */
+
+.playlist-swiper {
+  width: 100%;
+  margin-bottom: 32px;
+  position: relative;
+  padding: 32px 0;
+  min-height: 320px;
+  overflow: visible;
+}
+
+.playlist-swiper::before,
+.playlist-swiper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 64px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.playlist-swiper::before {
+  left: 0;
+  background: linear-gradient(to right, #181818 -80%, transparent);
+}
+
+.playlist-swiper::after {
+  right: 0;
+  background: linear-gradient(to left, #181818 -80%, transparent);
+}
+
+.playlist-swiper .swiper-slide {
+  width: 220px !important;
+  height: 320px !important;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.playlist-swiper .artistImage {
+  width: 100%;
+  height: 70%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.playlist-swiper .artistImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Absolute artist name at bottom */
+.playlist-swiper .artistName {
+  width: 100%;
+  font-weight: 700;
+  margin: 2px 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Popular Swiper Coverflow Style */
+.popular-swiper {
+  width: 100%;
+  /* margin: 10px 0 32px 0; */
+  min-height: 500px;
+}
+
+.popular-swiper .swiper-wrapper {
+  align-items: center;
+}
+
+/* Popular Swiper: square slides and absolute artist name */
+.popular-swiper .swiper-slide,
+.popular-swiper .card {
+  width: 380px;
+  height: 440px;
+  border-radius: 10px;
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Make image fill the top part of the square */
+.popular-swiper .artistImage {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.popular-swiper .artistImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Absolute artist name at bottom */
+.popular-swiper .artistName {
+  width: 100%;
+  padding: 18px 0 12px 0;
+  font-size: 1.5em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+ul {
+  list-style-type: none;
+  display: flex;
+  gap: 4px;
+  padding: 0;
+}
+
+ul li {
+  font-size: 0.7em;
+  padding: 2px 15px;
+  border-radius: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  border: solid 1px white;
+}
+
+ul li.active,
+ul li:active,
+ul li:focus {
+  background-color: var(--active-btn, #22c99e);
+  color: #fff;
+  border: 2px solid var(--active-btn, #22c99e);
+}
+
+ul li:hover {
+  border-color: #22c99e;
+  color: #22c99e;
+}
+
+/* Custom scrollbar for Chrome, Edge, Safari */
+body::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb,
+main::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 8px;
+  opacity: 0.5;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+main::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
