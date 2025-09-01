@@ -28,6 +28,10 @@ type Artist struct {
 	Relations        map[string][]string // Assemble les localisations et dates de concerts.
 	TabCoords        []Coordinates       // Stock les coordonnées.
 	CoordsJSON       template.JS
+	SpotifyID string
+	Popularity int
+	SpotifyImages []string
+	Genres []string
 }
 
 // Structure du json locations.
@@ -55,6 +59,7 @@ type Filter struct {
 	FirstAlbumDate []int
 	Members        map[int]bool
 	Location       string
+	Limit int
 }
 
 func GetArtists() []Artist {
@@ -168,6 +173,9 @@ func FilterBy(artists []Artist, filter Filter) []Artist {
 	search := normalize(filter.Location) // enlève les caractères spéciaux.
 
 	for _, artist := range artists {
+		if len(results) >= filter.Limit && filter.Limit != 0{
+			break
+		}
 		firstAlbumDate, _ := strconv.Atoi(artist.FirstAlbum[6:]) // Format d'origine en string("00/00/2000"), le [6:] ne garde que l'année convertit en INT.
 		match := true
 
