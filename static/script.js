@@ -3,6 +3,16 @@ const range = document.querySelector(".range-selected");
 const rangeInput = document.querySelectorAll(".range-input input");
 const rangePrice = document.querySelectorAll(".range-price input");
 
+const listElements = document.querySelectorAll('li');
+
+/* listElements.forEach(list => {
+    list.addEventListener("click", () => {
+        console.log(list.dataset);
+    });
+}); */
+
+
+
 rangeInput.forEach((input) => {
     input.addEventListener("input", (e) => {
         let minRange = parseInt(rangeInput[0].value);
@@ -127,36 +137,106 @@ maxCD.addEventListener("input", function () {
 });
 
 const swiper = new Swiper('.playlist-swiper', {
-  slidesPerView: 'auto',
-  spaceBetween: 24,
-  grabCursor: true,
-  navigation: {
-    nextEl: '.swiper-button-next',
-    prevEl: '.swiper-button-prev',
-  },
-  effect: 'slide',
+    slidesPerView: 'auto',
+    spaceBetween: 24,
+    grabCursor: true,
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    effect: 'slide',
+});
+
+listElements.forEach(list => {
+    list.addEventListener("click", () => {
+        console.log("clicked")
+        refreshPlaylistSwiper(list,swiper);
+    });
+});
+
+// Popular swiper
+
+const swiperP = new Swiper('.popular-swiper', {
+    effect: 'coverflow',
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: 'auto',
+    loop: true,
+    coverflowEffect: {
+        rotate: 0,
+        stretch: 0,
+        depth: 200,
+        modifier: 1,
+        slideShadows: true,
+    },
+    navigation: {
+        nextEl: '.swiper-button-next-popular',
+        prevEl: '.swiper-button-prev-popular',
+    },
+    pagination: {
+        el: '.swiper-pagination-popular',
+        clickable: true,
+    },
 });
 
 // Color thief
 
 const colorThief = new ColorThief();
-    const img = document.querySelector('#highlightImage');
-    const image = document.querySelector('#highlightImage');
-    img.crossOrigin = "anonymous";
+const img = document.querySelector('#highlightImage');
+const image = document.querySelector('#highlightImage');
+img.crossOrigin = "anonymous";
 
-    // Make sure image is finished loading
-    if (img.complete) {
-      console.log(colorThief.getColor(img));
-    } else {
-      image.addEventListener('load', function() {
+// Make sure image is finished loading
+if (img.complete) {
+    console.log(colorThief.getColor(img));
+} else {
+    image.addEventListener('load', function () {
         console.log(colorThief.getColor(img));
-      });
-    }
+    });
+}
 
 // Spotify API
 
 
 const highlightName = document.querySelector('#highlightName');
-fetch()
+
+
+// Refresh Playlist
+
+async function refreshPlaylistSwiper(element, swiper) {
+    element.parentElement.querySelectorAll('li').forEach(li => {
+        li.classList.remove('active');
+    });
+    
+    element.classList.add('active');
+    const res = await fetch('http://localhost:8000/api?' + element.dataset.api);
+    const artists = await res.json();
+    console.log(artists)
+
+    let wrapper;
+    if (element.dataset.api.includes('dec')) {
+        wrapper = document.querySelector('#decWrapper.swiper-wrapper');
+    } else {
+        wrapper = document.querySelector('#locWrapper.swiper-wrapper');
+    }
+    wrapper.textContent = ''
+    artists.forEach(artist => {
+        const slide = document.createElement('a');
+        slide.className = 'card swiper-slide';
+        slide.href = `artist?id=${artist.id}`;
+        slide.innerHTML = `
+      <div class="artistImage">
+        <img src="${artist.image}" alt="">
+      </div>
+      <p class="artistName">${artist.name}</p>
+    `;
+        wrapper.appendChild(slide);
+    });
+    swiper.forEach(s => {
+        s.update()
+    })
+
+}
+
 
 
