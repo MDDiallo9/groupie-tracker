@@ -5,11 +5,42 @@ const rangePrice = document.querySelectorAll(".range-price input");
 
 const listElements = document.querySelectorAll('li');
 
-/* listElements.forEach(list => {
-    list.addEventListener("click", () => {
-        console.log(list.dataset);
+
+const searchForm = document.querySelector('#searchBar');
+searchForm.addEventListener("submit", searchSubmit)
+
+async function searchSubmit(e) {
+    e.preventDefault()
+    const response = await fetch('http://localhost:8000/search', {
+        method: 'POST',
+        body: searchForm[0].value
     });
-}); */
+    const data = await response.json();
+    const main = document.querySelector('main');
+    while (main.children.length > 1) {
+        main.removeChild(main.lastChild);
+    }
+    const sep = document.createElement("div")
+    sep.classList.add("separator")
+    sep.textContent = `Résultats pour ${searchForm[0].value}`
+    main.appendChild(sep)
+    const result = document.createElement("div")
+    result.classList.add("result")
+    data.forEach(artist => {
+        const slide = document.createElement('a');
+        slide.className = 'card';
+        slide.href = `artist?id=${artist.id}`;
+        slide.innerHTML = `
+      <div class="artistImage">
+        <img src="${artist.image}" alt="">
+      </div>
+      <p class="artistName">${artist.name}</p>
+    `;
+        result.appendChild(slide);
+    });
+    main.appendChild(result)
+    searchForm[0].value = ""
+}
 
 
 
@@ -150,7 +181,7 @@ const swiper = new Swiper('.playlist-swiper', {
 listElements.forEach(list => {
     list.addEventListener("click", () => {
         console.log("clicked")
-        refreshPlaylistSwiper(list,swiper);
+        refreshPlaylistSwiper(list, swiper);
     });
 });
 
@@ -207,7 +238,7 @@ async function refreshPlaylistSwiper(element, swiper) {
     element.parentElement.querySelectorAll('li').forEach(li => {
         li.classList.remove('active');
     });
-    
+
     element.classList.add('active');
     const res = await fetch('http://localhost:8000/api?' + element.dataset.api);
     const artists = await res.json();
@@ -222,7 +253,7 @@ async function refreshPlaylistSwiper(element, swiper) {
     wrapper.textContent = ''
     artists.forEach(artist => {
         const slide = document.createElement('a');
-        slide.className = 'card swiper-slide';
+        slide.className = 'swiper-slide';
         slide.href = `artist?id=${artist.id}`;
         slide.innerHTML = `
       <div class="artistImage">
@@ -237,6 +268,7 @@ async function refreshPlaylistSwiper(element, swiper) {
     })
 
 }
+
 
 
 
