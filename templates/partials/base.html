@@ -53,8 +53,8 @@
                     </div>
                 </div>
             </div>
-            <div id="members-filter" style="display: flex; align-items: center; gap: 0.5em;flex-direction: column;">
-                <label style="margin-right: 0.5em;">Membres</label>
+            <div id="members-filter">
+                <label >Membres</label>
                 <div>
                     <label><input type="checkbox" name="members" value="1"> 1</label>
                     <label><input type="checkbox" name="members" value="2"> 2</label>
@@ -82,7 +82,7 @@
             </label>
         </form>
 
-        <footer style="text-align: center;margin-top: 30%;" class="hide">2025</footer>
+        <footer class="hide">2025</footer>
     </nav>
     {{ block "content" .}} {{end}}
     {{ block "footer" .}} {{end}}
