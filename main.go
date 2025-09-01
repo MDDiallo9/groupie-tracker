@@ -12,7 +12,8 @@ func main() {
 	// flag.String permet de créer des arguments/options à utiliser lors du lancement du programme.
 	// flag.String(Nom du Flag, valeur par défaut si rien n'est spécifié, description de l'attendu ou de l'usage).
 	// Ici, cela nous permet de nous assurer d'utiliser le Port 8000 par défaut, mais aussi d'en prendre un autre si s'est spécifié dans l'argument de commande.
-	port := flag.String("port", ":8000", "PORT")
+	port := flag.String("port", "0.0.0.0:8000", "PORT")
+	api :=  flag.String("api",":nil","API Key")
 
 	// log.New(où écrire le log, texte écrit en début de chaque ligne, option à afficher tel que l'heure).
 	// os.Stdout est la contraction de "Standard Out", sortie standard. Ici, le terminal.
@@ -23,10 +24,15 @@ func main() {
 	// flg.Parse permet d'utiliser les options définies précedement, et de pouvoir les gérer dans l'invite de commande du terminal.
 	flag.Parse()
 
+	API_Key := *api
+
+
 	// On stocke un pointeur dans dans la structure AppData.
 	data := &server.AppData{
-		Artists: server.InitArtists(), // Récolte les données artistes que le pointeur de Data se charge de récupérer.
+		Artists: server.InitArtists(API_Key), // Récolte les données artistes que le pointeur de Data se charge de récupérer.
 	}
+
+	log.Print(data.API_Key)
 
 	// Création du serveur GO.
 	srv := &http.Server{
@@ -37,7 +43,7 @@ func main() {
 
 	// Récupère les informations de infoLog, puis inscrit le texte suivit du numéro du port utilisé
 
-	infoLog.Println("Starting server on http://localhost" + *port)
+	infoLog.Println("Starting server on http:/" + *port)
 	err := srv.ListenAndServe() // Démarre le serveur et la capacité de recevoir des requêtes.
 	errorLog.Fatal(err)
 
