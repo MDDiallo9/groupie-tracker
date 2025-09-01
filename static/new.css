@@ -112,6 +112,11 @@ body {
   height: 160px;
 }
 
+#logoParent{
+  display: flex;
+  justify-content: center;
+}
+
 .icon {
   width: 1.5em;
   height: 1.5em;
@@ -742,4 +747,33 @@ main::-webkit-scrollbar-thumb {
 body::-webkit-scrollbar-thumb:hover,
 main::-webkit-scrollbar-thumb:hover {
   background: #444;
+}
+
+
+.result{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card {
+  margin: 8px;
+  width: 260px;
+  min-width: 220px;
+  max-width: 320px;
+  height: 320px;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border: solid 1px slategrey;
+  padding: 0 0 1em 0;
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card .artistName {
+  font-size: 1.4em;
+  font-weight: 500;
 }
