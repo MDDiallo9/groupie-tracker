@@ -164,7 +164,13 @@ func GetRelations(artist Artist) map[string][]string {
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
-	return relations.Relations
+
+	formattedRelations := make(map[string][]string)
+    for key, locs := range relations.Relations {
+        formattedKey := strings.Join(FormatLocations([]string{key}), "")
+        formattedRelations[formattedKey] = locs
+    }
+    return formattedRelations
 }
 
 // Fonction pour les curseurs du filtre
