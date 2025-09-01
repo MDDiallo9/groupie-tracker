@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"io"
 	"groupie-tracker/api"
 )
 
@@ -186,9 +186,13 @@ func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 	// Vérification que c'est une méthode POST
 	if r.Method == "POST" {
-		r.ParseForm() // Mise en forme des données de la requête "r".
-		// la requête obtenue est mise en minuscule pour quelle ne soit pas sensible à la casse.
-		query = strings.ToLower(r.FormValue("search"))
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusBadRequest)
+			return
+		}
+		query = strings.ToLower(string(body))
+		log.Print(query)
 	} else {
 		// Si ce n'est pas la méthode POST.
 		http.Error(w, "Erreur d'envoi de données", http.StatusMethodNotAllowed)
@@ -197,7 +201,7 @@ func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 	// Vérification de la taille de la recherche.
 	if len(query) == 0 {
-		http.Error(w, "Veuillez écrire au moins un caractère dans la barre de recherche.", http.StatusMethodNotAllowed)
+		http.Error(w, "Veuillez écrire au moins un caractère dans la barre de recherche.", http.StatusBadRequest)
 		return
 	}
 
@@ -264,7 +268,7 @@ func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 
 	// Exécution du template
-	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	/* ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print("Erreur template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -275,7 +279,9 @@ func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 	if err != nil {
 		log.Print("Erreur exécution template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
+	} */
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data.Artists)
 }
 
 func NotFound(w http.ResponseWriter, r *http.Request) {
@@ -369,28 +375,28 @@ func FilterRefresh(w http.ResponseWriter, r *http.Request, init *AppData) {
 		"2020s": {2020, 2029},
 	}
 	locations := map[string]string{
-		"fr": "france",
-		"us": "usa",
-		"uk": "uk",
-		"ger": "germany",
+		"fr":   "france",
+		"us":   "usa",
+		"uk":   "uk",
+		"ger":  "germany",
 		"den:": "denmark",
-		"swe":"sweden",
-		"aus":"australia",
-		"indo":"indonesia",
+		"swe":  "sweden",
+		"aus":  "australia",
+		"indo": "indonesia",
 	}
 
 	dec := r.URL.Query().Get("dec")
-    loc := r.URL.Query().Get("loc")
+	loc := r.URL.Query().Get("loc")
 
-    var filter api.Filter
+	var filter api.Filter
 
-    if years, ok := decades[dec]; ok {
-        filter.CreationDate = years
-    }
-    if location, ok := locations[loc]; ok {
-        filter.Location = location
+	if years, ok := decades[dec]; ok {
+		filter.CreationDate = years
+	}
+	if location, ok := locations[loc]; ok {
+		filter.Location = location
 		log.Print(filter)
-    }
+	}
 
 	filtered := api.FilterBy(init.Artists, filter)
 	w.Header().Set("Content-Type", "application/json")
