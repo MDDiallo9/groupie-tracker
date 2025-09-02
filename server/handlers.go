@@ -70,7 +70,7 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 		Popular     []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(init),
-		Artists:     init.Artists,
+		Artists:     []api.Artist{},
 		Playlist20:  api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
 		Location:    api.FilterBy(init.Artists, api.Filter{Location: "france", CreationDate: []int{1950, 2025}}),
 		Popular:     popular,
@@ -255,7 +255,9 @@ func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
-		http.Redirect(w, r, "/404", http.StatusSeeOther)
+		w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusNotFound)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Aucun résultat trouvé."})
 		return
 	}
 

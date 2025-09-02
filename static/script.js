@@ -5,6 +5,19 @@ const rangePrice = document.querySelectorAll(".range-price input");
 
 const listElements = document.querySelectorAll('li');
 
+const result = document.querySelector('.result');
+const main = document.querySelector('main');
+console.log()
+if (result.children.length > 1) {
+    [...main.children].forEach(child => {
+    if (
+        !child.classList.contains("sb") &&
+        !child.classList.contains("result")
+    ) {
+        main.removeChild(child);
+    }
+});
+}
 
 const searchForm = document.querySelector('#searchBar');
 searchForm.addEventListener("submit", searchSubmit)
@@ -20,6 +33,26 @@ async function searchSubmit(e) {
     while (main.children.length > 1) {
         main.removeChild(main.lastChild);
     }
+
+    if (response.status === 404) {
+        console.log("404");
+        const errorDiv = document.createElement("div");
+        errorDiv.classList.add("separator");
+        errorDiv.textContent = "Aucun résultat trouvé.";
+        main.appendChild(errorDiv);
+        searchForm[0].value = "";
+        return;
+    }
+
+    if (!response.ok) {
+        const errorDiv = document.createElement("div");
+        errorDiv.classList.add("separator");
+        errorDiv.textContent = `Erreur: ${response.status}`;
+        main.appendChild(errorDiv);
+        searchForm[0].value = "";
+        return;
+    }
+
     const sep = document.createElement("div")
     sep.classList.add("separator")
     sep.textContent = `Résultats pour ${searchForm[0].value}`

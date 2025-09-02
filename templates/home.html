@@ -1,9 +1,9 @@
 {{ define "content" }}
 
 <main class="">
-  <div style="width: 100%;">
+  <div class="sb" style="width: 100%;">
     <form method="POST" action="/search" id="searchBar">
-      <input type="text" name="search" list="suggestions" placeholder="Rechercher un groupe, un artiste, une date..." />
+      <input type="text" name="search" list="suggestions" required placeholder="Rechercher un groupe, un artiste, une date..." />
       <div class="suggest"><datalist id="suggestions">
           <!-- Partie dédiée aux suggestions quant l'utilisateur tape dans la barre de recherche -->
           {{range .Suggestions}}
@@ -129,22 +129,17 @@
     <div class="swiper-scrollbar"></div>
   </div>
 
-  <!-- {{ range .Artists}}
-  <a class="card" href="artist?id={{.ID}}">
-
-
-    <div class="artistImage">
-      <img src="{{.Image}}" alt="">
-
-    </div>
-
-
-    <p class="artistName">{{.Name}}</p>
-
-    <p class="creationDate">{{.CreationDate}}</p>
-
-  </a>
-  {{end}} -->
+  <div class="result">
+    {{ range .Artists}}
+    <a class="card" href="artist?id={{.ID}}">
+      <div class="artistImage">
+        <img src="{{.Image}}" alt="">
+      </div>
+      <p class="artistName">{{.Name}}</p>
+      <p class="creationDate">{{.CreationDate}}</p>
+    </a>
+    {{end}}
+  </div>
 
 
 </main>
