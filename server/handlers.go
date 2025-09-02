@@ -1,15 +1,16 @@
 package server
 
 import (
-	"math/rand"
-    "time"
 	"encoding/json"
 	"html/template"
 	"log"
+	"math/rand"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
-
+	"time"
+	"io"
 	"groupie-tracker/api"
 )
 
@@ -22,6 +23,13 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	var filter api.Filter
 	filter.CreationDate = []int{1950, 2025}   // Définition du Min-Max.
 	filter.FirstAlbumDate = []int{1950, 2020} // Définition du Min-Max.
+
+	// Ordre popularité
+	popular := make([]api.Artist, 15)
+	copy(popular, init.Artists[:15])
+	sort.Slice(popular, func(i, j int) bool {
+		return popular[i].Popularity > popular[j].Popularity
+	})
 
 	if r.Method == "POST" {
 
@@ -57,15 +65,15 @@ func home(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Suggestions []Suggestion
 		Artists     []api.Artist
-		Playlist20 []api.Artist
-		Location []api.Artist
-		Highlight api.Artist
+		Playlist20  []api.Artist
+		Location    []api.Artist
+		Popular     []api.Artist
 	}{
 		Suggestions: SuggestionsGeneration(init),
-		Artists:     init.Artists,
-		Playlist20: api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
-		Location: api.FilterBy(init.Artists, api.Filter{Location: "france",CreationDate: []int{1950, 2025}}),
-		Highlight: GetRandomArtist(init.Artists),
+		Artists:     []api.Artist{},
+		Playlist20:  api.FilterBy(init.Artists, api.Filter{CreationDate: []int{2000, 2010}}),
+		Location:    api.FilterBy(init.Artists, api.Filter{Location: "france", CreationDate: []int{1950, 2025}}),
+		Popular:     popular,
 	}
 
 	// Vérifie si il y a une demande du client pour obtenir des données au travers du filtre.
@@ -118,7 +126,7 @@ func Artist(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func IndexPage(w http.ResponseWriter, r *http.Request,init *AppData) {
+func IndexPage(w http.ResponseWriter, r *http.Request, init *AppData) {
 	data := struct {
 		Artists []api.Artist
 	}{
@@ -173,14 +181,18 @@ func ArtistMap(w http.ResponseWriter, r *http.Request, init *AppData) {
 	}
 }
 
-func search(w http.ResponseWriter, r *http.Request,init *AppData) {
+func search(w http.ResponseWriter, r *http.Request, init *AppData) {
 	var query string
 
 	// Vérification que c'est une méthode POST
 	if r.Method == "POST" {
-		r.ParseForm() // Mise en forme des données de la requête "r".
-		// la requête obtenue est mise en minuscule pour quelle ne soit pas sensible à la casse.
-		query = strings.ToLower(r.FormValue("search"))
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusBadRequest)
+			return
+		}
+		query = strings.ToLower(string(body))
+		log.Print(query)
 	} else {
 		// Si ce n'est pas la méthode POST.
 		http.Error(w, "Erreur d'envoi de données", http.StatusMethodNotAllowed)
@@ -189,7 +201,7 @@ func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 
 	// Vérification de la taille de la recherche.
 	if len(query) == 0 {
-		http.Error(w, "Veuillez écrire au moins un caractère dans la barre de recherche.", http.StatusMethodNotAllowed)
+		http.Error(w, "Veuillez écrire au moins un caractère dans la barre de recherche.", http.StatusBadRequest)
 		return
 	}
 
@@ -243,7 +255,9 @@ func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 
 	// si la recherche ne correspond à rien.
 	if len(results) == 0 {
-		http.Redirect(w,r,"/404",http.StatusSeeOther)
+		w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusNotFound)
+        json.NewEncoder(w).Encode(map[string]string{"error": "Aucun résultat trouvé."})
 		return
 	}
 
@@ -256,7 +270,7 @@ func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 	}
 
 	// Exécution du template
-	ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
+	/* ts, err := template.ParseFiles("./templates/index.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print("Erreur template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -267,10 +281,12 @@ func search(w http.ResponseWriter, r *http.Request,init *AppData) {
 	if err != nil {
 		log.Print("Erreur exécution template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
+	} */
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data.Artists)
 }
 
-func NotFound(w http.ResponseWriter, r *http.Request){
+func NotFound(w http.ResponseWriter, r *http.Request) {
 	ts, err := template.ParseFiles("./templates/404.html", "./templates/partials/base.html", "./templates/partials/footer.html", "./templates/partials/head.html")
 	if err != nil {
 		log.Print("Erreur template:", err)
@@ -278,13 +294,12 @@ func NotFound(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base.html",nil)
+	err = ts.ExecuteTemplate(w, "base.html", nil)
 	if err != nil {
 		log.Print("Erreur exécution template:", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
-
 
 // Construction des suggestions
 func SuggestionsGeneration(init *AppData) []Suggestion {
@@ -343,11 +358,49 @@ func isFilterFilled(f api.Filter) bool {
 	return false
 }
 
-
 func GetRandomArtist(artists []api.Artist) api.Artist {
-    if len(artists) == 0 {
-        return api.Artist{}
-    }
-    rand.Seed(time.Now().UnixNano())
-    return artists[rand.Intn(len(artists))]
+	if len(artists) == 0 {
+		return api.Artist{}
+	}
+	rand.Seed(time.Now().UnixNano())
+	return artists[rand.Intn(len(artists))]
+}
+
+func FilterRefresh(w http.ResponseWriter, r *http.Request, init *AppData) {
+	decades := map[string][]int{
+		"60s":   {1960, 1969},
+		"70s":   {1970, 1979},
+		"80s":   {1980, 1989},
+		"90s":   {1990, 1999},
+		"2000s": {2000, 2009},
+		"2010s": {2010, 2019},
+		"2020s": {2020, 2029},
+	}
+	locations := map[string]string{
+		"fr":   "france",
+		"us":   "usa",
+		"uk":   "uk",
+		"ger":  "germany",
+		"den:": "denmark",
+		"swe":  "sweden",
+		"aus":  "australia",
+		"indo": "indonesia",
+	}
+
+	dec := r.URL.Query().Get("dec")
+	loc := r.URL.Query().Get("loc")
+
+	var filter api.Filter
+
+	if years, ok := decades[dec]; ok {
+		filter.CreationDate = years
+	}
+	if location, ok := locations[loc]; ok {
+		filter.Location = location
+		log.Print(filter)
+	}
+
+	filtered := api.FilterBy(init.Artists, filter)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(filtered)
 }

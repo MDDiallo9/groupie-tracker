@@ -1,122 +1,146 @@
 {{ define "content" }}
 
-<main class="artists-list">
-  <div class="container">
+<main class="">
+  <div class="sb" style="width: 100%;">
+    <form method="POST" action="/search" id="searchBar">
+      <input type="text" name="search" list="suggestions" required placeholder="Rechercher un groupe, un artiste, une date..." />
+      <div class="suggest"><datalist id="suggestions">
+          <!-- Partie dédiée aux suggestions quant l'utilisateur tape dans la barre de recherche -->
+          {{range .Suggestions}}
+          <option value="{{.Texte}}">{{.Label}}</option>
+          {{end}}
+        </datalist></div>
+      <button type="submit">
+        <svg viewBox="0 0 24 24" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      </button>
+    </form>
+  </div>
 
-    <div style="width: 100%;">
-      <form method="POST" action="/search" id="searchBar">
-        <input type="text" name="search" list="suggestions"
-          placeholder="Rechercher un groupe, un artiste, une date..." />
-        <div class="suggest"><datalist id="suggestions">
-            <!-- Partie dédiée aux suggestions quant l'utilisateur tape dans la barre de recherche -->
-            {{range .Suggestions}}
-            <option value="{{.Texte}}">{{.Label}}</option>
-            {{end}}
-          </datalist></div>
-        <button type="submit">
-          <svg viewBox="0 0 24 24" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </button>
-      </form>
+  <div class="separator">
+    <p>Populaires</p>
+  </div>
+
+  <div class="swiper popular-swiper">
+    <div class="swiper-wrapper">
+      {{ range .Popular }}
+      <a class="swiper-slide" href="artist?id={{.ID}}">
+        <div class="artistImage">
+          <img src="{{.Image}}" alt="">
+        </div>
+        <p class="artistName">{{.Name}}</p>
+
+      </a>
+      {{ end }}
     </div>
-
-   <!--  <div id="hero">
-      <div>
-        <p id="highlightName">{{.Highlight.Name}}</p>
-        <img id="highlightImage" src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="{{.Highlight.Name}}" crossorigin="anonymous"/>
-      </div>
-    </div> -->
+    <div class="swiper-pagination-popular hide"></div>
+    <div class="swiper-button-prev-popular"></div>
+    <div class="swiper-button-next-popular"></div>
+  </div>
 
 
-    <div class="separator">
-      <p>En France</p>
+  <div class="separator">
+    <p>En concert</p>
+    <ul>
+      <li data-api="loc=fr">France</li>
+      <li data-api="loc=uk">United Kingdom</li>
+      <li data-api="loc=us">United States</li>
+      <li data-api="loc=mx">Mexico</li>
+      <li data-api="loc=ger">Germany</li>
+      <li data-api="loc=den">Denmark</li>
+      <li data-api="loc=aus">Australia</li>
+      <li data-api="loc=indo">Indonesia</li>
+    </ul>
+  </div>
+  <div class="swiper playlist-swiper">
+    <!-- Additional required wrapper -->
+    <div id="locWrapper" class="swiper-wrapper">
+      <!-- Slides -->
+      {{ range .Location}}
+
+      <a class="swiper-slide" href="artist?id={{.ID}}">
+
+
+        <div class="artistImage">
+          <img src="{{.Image}}" alt="">
+
+        </div>
+
+
+        <p class="artistName">{{.Name}} {{.Popularity}}</p>
+
+      </a>
+
+      {{end}}
     </div>
-    <div class="swiper playlist-swiper">
-      <!-- Additional required wrapper -->
-      <div class="swiper-wrapper">
-        <!-- Slides -->
-        {{ range .Location}}
+    <!-- If we need pagination -->
+    <div class="swiper-pagination"></div>
 
-        <a class="card swiper-slide" href="artist?id={{.ID}}">
+    <!-- If we need navigation buttons -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+
+    <!-- If we need scrollbar -->
+    <div class="swiper-scrollbar"></div>
+  </div>
+
+  <div class="separator">
+    <p>Artistes</p>
+    <ul>
+      <li data-api="dec=60s">60s</li>
+      <li data-api="dec=70s">70s</li>
+      <li data-api="dec=80s">80s</li>
+      <li data-api="dec=90s">90s</li>
+      <li data-api="dec=2000s">2000s</li>
+      <li data-api="dec=2010s">2010s</li>
+    </ul>
+  </div>
+  <div class="swiper playlist-swiper">
+    <!-- Additional required wrapper -->
+    <div id="decWrapper" class="swiper-wrapper">
+      <!-- Slides -->
+      {{ range .Playlist20}}
+
+      <a class="swiper-slide" href="artist?id={{.ID}}">
 
 
-          <div class="artistImage">
-            <img src="{{.Image}}" alt="">
+        <div class="artistImage">
+          <img src="{{.Image}}" alt="">
 
-          </div>
+        </div>
 
 
-          <p class="artistName">{{.Name}}</p>
+        <p class="artistName">{{.Name}}</p>
 
-        </a>
+      </a>
 
-        {{end}}
-      </div>
-      <!-- If we need pagination -->
-      <div class="swiper-pagination"></div>
-
-      <!-- If we need navigation buttons -->
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-
-      <!-- If we need scrollbar -->
-      <div class="swiper-scrollbar"></div>
+      {{end}}
     </div>
-    
-    <div class="separator">
-      <p>Playlist 2000s</p>
-    </div>
-    <div class="swiper playlist-swiper">
-      <!-- Additional required wrapper -->
-      <div class="swiper-wrapper">
-        <!-- Slides -->
-        {{ range .Playlist20}}
+    <!-- If we need pagination -->
+    <div class="swiper-pagination"></div>
 
-        <a class="card swiper-slide" href="artist?id={{.ID}}">
+    <!-- If we need navigation buttons -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
 
+    <!-- If we need scrollbar -->
+    <div class="swiper-scrollbar"></div>
+  </div>
 
-          <div class="artistImage">
-            <img src="{{.Image}}" alt="">
-
-          </div>
-
-
-          <p class="artistName">{{.Name}}</p>
-
-        </a>
-
-        {{end}}
-      </div>
-      <!-- If we need pagination -->
-      <div class="swiper-pagination"></div>
-
-      <!-- If we need navigation buttons -->
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-
-      <!-- If we need scrollbar -->
-      <div class="swiper-scrollbar"></div>
-    </div>
-
+  <div class="result">
     {{ range .Artists}}
     <a class="card" href="artist?id={{.ID}}">
-
-
       <div class="artistImage">
         <img src="{{.Image}}" alt="">
-
       </div>
-
-
       <p class="artistName">{{.Name}}</p>
-
       <p class="creationDate">{{.CreationDate}}</p>
-
     </a>
     {{end}}
-
   </div>
+
+
 </main>
 {{ end }}

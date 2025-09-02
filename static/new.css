@@ -1,6 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Story+Script&display=swap");
-
-/* Color vars */
+@import url("https://fonts.googleapis.com/css2?family=Lobster&family=Roboto:ital,wght@0,100..900;1,100..900&family=Story+Script&display=swap");
 
 :root {
   --text-color: white;
@@ -10,21 +8,19 @@
   --active-btn: rgb(34, 201, 158);
 }
 
-/* 1. Use a more-intuitive box-sizing model */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* CSS Reset */
+
+* {
   margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+  font-family: Roboto;
+  color: var(--text-color);
 }
 
-img,
-picture,
-video,
-canvas,
-svg {
-  display: block;
-  max-width: 100%;
+a {
+  text-decoration: none;
 }
 
 input,
@@ -34,55 +30,40 @@ select {
   font: inherit;
 }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
-}
-
-p {
-  text-wrap: pretty;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  text-wrap: balance;
-}
-
-* {
-  font-family: Roboto;
-  color: var(--text-color);
-}
-
-a {
-  text-decoration: none;
-}
-
 #searchBar {
   display: flex !important;
   flex-direction: row;
   justify-content: space-around;
 }
 
+body {
+  background-color: #111;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 32px 0;
+  width: auto;
+  max-height: 100vh;
+}
+
 @media (max-width: 700px) {
   body {
-    display: unset !important;
+    flex-direction: column;
+    padding: 0;
+    gap: 1em;
   }
 
   .card {
     width: 50% !important;
   }
   nav {
+    padding: 0;
     width: 100% !important;
     margin: 0 !important;
-    height: 200px;
+    max-width: unset !important;
+  }
+  main {
+    width: 100% !important;
   }
   #filters {
     display: none !important;
@@ -90,51 +71,55 @@ a {
   .hide {
     display: none !important;
   }
-}
-
-body {
-  background-color: #111;
-  display: flex;
-  min-height: 100vh;
-  max-height: 100vh;
-  line-height: 1.5;
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
-  padding: 32px 0;
-  box-sizing: border-box;
+  .popular-swiper .swiper-slide,
+  .popular-swiper .card {
+    width: 250px !important;
+    height: 250px !important;
+    border-radius: 10px;
+    z-index: 1;
+    overflow: visible !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .popular-swiper {
+    width: 100%;
+    /* margin: 10px 0 32px 0; */
+  }
 }
 
 .separator {
   width: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   font-size: 1.6em;
   color: #ff6f61;
-  margin: 32px 0 16px 0;
+  margin: 12px 0 12px 0;
   font-weight: 700;
-}
-
-nav {
-  width: 320px;
-  min-width: 260px;
-  max-width: 340px;
-  background-color: var(--background-sidebar);
-  border-radius: 18px;
-  margin: 0 32px 0 32px;
-  padding: 2em 1.5em;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 2em;
+  gap: 12px;
 }
 
 #logo {
-  font-family: "Story-Script";
-  font-size: 2rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 160px;
+}
+
+#logoParent span {
+  font-family: "Lobster", cursive;
+  position: absolute;
+  bottom: 0;
+  font-size: 2rem;
+}
+
+#logoParent {
+  display: flex;
+  justify-content: center;
+  position: relative;
 }
 
 .icon {
@@ -143,72 +128,40 @@ nav {
   color: #ff6f61;
 }
 
-main {
-  width: calc(100vw - 400px);
-  margin-top: 0;
-  overflow-y: auto;
-  padding: 0 32px;
-}
-
-.card {
-  margin: 8px;
-  width: 260px;
-  min-width: 220px;
-  max-width: 320px;
-  height: 420px;
+nav {
+  width: 20%;
+  min-width: 260px;
+  max-width: 350px;
+  background-color: var(--background-sidebar);
+  border-radius: 18px;
+  margin: 0 32px 0 32px;
+  padding: 2em 1.5em;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   display: flex;
-  overflow: hidden;
   flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  border: solid 1px slategrey;
-  padding: 0 0 1em 0;
-  border-radius: 16px;
-  text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 2em;
+  padding-right: 20px;
 }
 
-.card:hover {
-  transform: scale(1.04);
-  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
-}
-
-.artistName {
-  font-size: 1.3em;
-  font-weight: 700;
-  margin: 16px 0 8px 0;
-  text-transform: uppercase;
-  color: #ffd700;
-  text-shadow: 0 2px 8px #0008;
-  letter-spacing: 1px;
-}
-
-.createdDate {
-  font-size: 1em;
-  opacity: 0.7;
-  margin-bottom: 8px;
-}
-
-.artistImage {
-  width: 100%;
-}
-
-.artistImage img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 16px 16px 0 0;
-}
-
-.container {
+#members-filter {
   display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  justify-content: flex-start;
-  align-content: flex-start;
-  margin: 0 auto;
-  max-width: 1600px;
-  padding-bottom: 32px;
+  align-items: center;
+  gap: 0.5em;
+  flex-direction: column;
+}
+
+#members-filter label {
+  margin-right: 0.5em;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 1500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px;
 }
 
 button:hover,
@@ -224,13 +177,6 @@ button,
 input,
 a {
   transition: all 0.2s;
-}
-
-a:focus,
-button:focus,
-input:focus {
-  outline: 2px solid #ff6f61;
-  outline-offset: 2px;
 }
 
 /* Artist  */
@@ -643,8 +589,12 @@ button[type="submit"] svg {
 /* Playlist Swiper */
 
 .playlist-swiper {
+  width: 100%;
+  margin-bottom: 32px;
   position: relative;
   padding: 32px 0;
+  min-height: 320px;
+  overflow: visible;
 }
 
 .playlist-swiper::before,
@@ -669,24 +619,47 @@ button[type="submit"] svg {
 }
 
 .playlist-swiper .swiper-slide {
-  width: 400px;
-  height: 420px;
+  width: 220px !important;
+  height: 320px !important;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.playlist-swiper .artistImage {
+  width: 100%;
+  height: 70%;
+  display: flex;
+  align-items: flex-start;
   justify-content: center;
 }
 
+.playlist-swiper .artistImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Absolute artist name at bottom */
 .playlist-swiper .artistName {
-  position: absolute;
-  bottom: 0;
-  background-color: black;
-  min-width: 100%;
+  width: 100%;
+  font-weight: 700;
+  margin: 2px 0;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 /* Popular Swiper Coverflow Style */
 .popular-swiper {
   width: 100%;
-  margin: 40px 0 32px 0;
-  min-height: 480px;
+  /* margin: 10px 0 32px 0; */
+  min-height: 500px;
 }
 
 .popular-swiper .swiper-wrapper {
@@ -696,13 +669,9 @@ button[type="submit"] svg {
 /* Popular Swiper: square slides and absolute artist name */
 .popular-swiper .swiper-slide,
 .popular-swiper .card {
-  width: 380px !important;
-  height: 380px !important;
-  border-radius: 32px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
-  background: linear-gradient(135deg, #232323 70%, #181818 100%);
-  transition: box-shadow 0.3s, transform 0.3s;
-  position: relative;
+  width: 380px;
+  height: 440px;
+  border-radius: 10px;
   z-index: 1;
   overflow: hidden;
   display: flex;
@@ -714,7 +683,6 @@ button[type="submit"] svg {
 /* Make image fill the top part of the square */
 .popular-swiper .artistImage {
   width: 100%;
-  height: 75%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -723,56 +691,103 @@ button[type="submit"] svg {
 .popular-swiper .artistImage img {
   width: 100%;
   height: 100%;
-  border-radius: 32px 32px 0 0;
+  border-radius: 10px;
   object-fit: cover;
 }
 
 /* Absolute artist name at bottom */
 .popular-swiper .artistName {
-  position: absolute;
-  left: 0;
-  bottom: 0;
   width: 100%;
   padding: 18px 0 12px 0;
-  background: linear-gradient(to top, #181818 90%, transparent 100%);
   font-size: 1.5em;
   font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0 2px 8px #0008;
   letter-spacing: 1px;
   margin: 0;
-  border-radius: 0 0 32px 32px;
   text-align: center;
+  text-transform: uppercase;
 }
 
-/* Responsive adjustments for 1080p screens */
-@media (max-width: 1400px) {
-  .popular-swiper .swiper-slide,
-  .popular-swiper .card {
-    width: 340px !important;
-    height: 340px !important;
-  }
-  .playlist-swiper .swiper-slide,
-  .playlist-swiper .card {
-    width: 180px !important;
-    height: 240px !important;
-  }
+ul {
+  list-style-type: none;
+  display: flex;
+  gap: 4px;
+  padding: 0;
 }
 
-@media (max-width: 900px) {
-  .popular-swiper .swiper-slide,
-  .popular-swiper .card {
-    width: 90vw !important;
-    height: 220px !important;
-  }
-  .playlist-swiper .swiper-slide,
-  .playlist-swiper .card {
-    width: 48vw !important;
-    height: 140px !important;
-  }
+ul li {
+  font-size: 0.84rem;
+  padding: 2px 15px;
+  border-radius: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  border: solid 1px white;
 }
 
-#notFound {
+ul li.active,
+ul li:active,
+ul li:focus {
+  background-color: var(--active-btn, #22c99e);
+  color: #fff;
+  border: 2px solid var(--active-btn, #22c99e);
+}
+
+ul li:hover {
+  border-color: #22c99e;
+  color: #22c99e;
+}
+
+/* Custom scrollbar for Chrome, Edge, Safari */
+body::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb,
+main::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 8px;
+  opacity: 0.5;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+main::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
+.result {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.card {
+  margin: 8px;
+  width: 260px;
+  min-width: 220px;
+  max-width: 320px;
+  height: 320px;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  border: solid 1px slategrey;
+  padding: 0 0 1em 0;
+  border-radius: 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card .artistName {
+  font-size: 1.4em;
+  font-weight: 500;
+}
+
+footer{
+  margin: auto;
+}
+
+.notFound {
   display: flex;
   align-items: center;
   justify-content: center;

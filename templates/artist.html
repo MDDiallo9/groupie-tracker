@@ -1,6 +1,5 @@
 {{ define "content" }}
-<div class="container">
-    <div class="artist-profile">
+<main>
         <div class="artist-profile-img">
             <img src="{{ .Image }}" alt="{{ .Name }}">
         </div>
@@ -49,7 +48,6 @@
                 </table>
         </div>
         <a href="/map?id={{ .ID }}" class="btn-map">Voir la carte des concerts</a>
-    </div>
-</div>
+</main>
 
 {{ end }}
