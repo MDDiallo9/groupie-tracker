@@ -24,7 +24,7 @@ searchForm.addEventListener("submit", searchSubmit)
 
 async function searchSubmit(e) {
     e.preventDefault()
-    const response = await fetch('http://localhost:8000/search', {
+    const response = await fetch('http://127.0.0.1:8000/search', {
         method: 'POST',
         body: searchForm[0].value
     });
@@ -273,7 +273,7 @@ async function refreshPlaylistSwiper(element, swiper) {
     });
 
     element.classList.add('active');
-    const res = await fetch('http://localhost:8000/api?' + element.dataset.api);
+    const res = await fetch('http://127.0.0.1:8000/api?' + element.dataset.api);
     const artists = await res.json();
     console.log(artists)
 
